@@ -1279,7 +1279,7 @@ Keep decision records in this document for v0.
 | Decision | Status |
 |---|---|
 | Parser-neutral Cull IR | Fixed. |
-| Parser frontend | Open until Part 0 Ruff viability gate and parser spike. |
+| Parser frontend | Fixed: Ruff parser crates pinned to rev `7033119ac2a7fb82e553afec621dd6f72f4f4720`. |
 | Canonical source decoding | Fixed. |
 | Canonical UTF-8 byte-offset ranges | Fixed. |
 | Compact interned IDs | Fixed. |
@@ -1298,8 +1298,8 @@ Keep decision records in this document for v0.
 | Unusedness confidence separate from removal risk | Fixed. |
 | Three-crate workspace | Fixed. |
 | Benchmark release gate | Fixed. |
-| Non-UTF-8 codec support | Open until Part 0. |
-| Product Python version matrix | Open until Part 0. |
+| Non-UTF-8 codec support | Fixed: UTF-8, UTF-8 BOM, ASCII, Latin-1, and ISO-8859-1 labels. |
+| Product Python version matrix | Fixed: Python 3.10 through 3.14 for v0. |
 | Reaching-binding widening limit | Open until Part 1. |
 | Exact benchmark numeric thresholds | Open until Part 5 setup. |
 
@@ -1333,15 +1333,15 @@ A part is complete only when:
 - the acceptance gate is met
 - a short implementation note records decisions and limitations
 
-## Remaining Part 0 Decisions
+## Closed Part 0 Decisions
 
-These decisions truly cannot be closed until the Part 0 spike:
+These decisions were closed by Part 0:
 
-| Decision | Why It Remains Open |
+| Decision | Part 0 Result |
 |---|---|
-| Parser frontend | Needs Ruff viability results and measured parser comparison. |
-| Non-UTF-8 codec support | Needs decoder and parser behavior validated against fixtures. |
-| Product Python matrix | Needs release-date context and proven semantic support. |
+| Parser frontend | Ruff selected after viability and parser comparison. |
+| Non-UTF-8 codec support | Supported codec set and structured errors are implemented. |
+| Product Python matrix | Python 3.10 through 3.14 is the v0 matrix; 3.15 remains a canary. |
 
 The plan is structurally frozen around parser-neutral IR, separate symbols/bindings/definitions,
 target-version-aware semantics, explicit resolution states, local uncertainty, fail-closed partial

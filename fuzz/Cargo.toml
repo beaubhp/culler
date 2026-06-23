@@ -1,0 +1,20 @@
+[package]
+name = "cull-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+cull-core = { path = "../crates/cull-core" }
+cull-python = { path = "../crates/cull-python" }
+libfuzzer-sys = "0.4"
+
+[[bin]]
+name = "parse_definitions"
+path = "fuzz_targets/parse_definitions.rs"
+test = false
+doc = false
+bench = false

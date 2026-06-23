@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "target_python": {
+    "major": 3,
+    "minor": 14
+  },
+  "project_root": "<PROJECT_ROOT>",
+  "source_roots": [
+    {
+      "path": ".",
+      "kind": "flat-project"
+    }
+  ],
+  "modules": [
+    {
+      "name": "pkg",
+      "path": "pkg/__init__.py",
+      "future_annotations": false,
+      "definitions": []
+    },
+    {
+      "name": "pkg.mod",
+      "path": "pkg/mod.py",
+      "future_annotations": false,
+      "definitions": [
+        {
+          "kind": "class",
+          "name": "Widget",
+          "range": {
+            "start": 0,
+            "end": 22
+          },
+          "name_range": {
+            "start": 6,
+            "end": 12
+          },
+          "is_async": false,
+          "decorator_count": 0,
+          "type_parameter_count": 0
+        }
+      ]
+    }
+  ],
+  "diagnostics": []
+}

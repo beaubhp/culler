@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "target_python": {
+    "major": 3,
+    "minor": 14
+  },
+  "project_root": "<PROJECT_ROOT>",
+  "source_roots": [
+    {
+      "path": "src",
+      "kind": "tool-cull"
+    }
+  ],
+  "modules": [
+    {
+      "name": "acme",
+      "path": "src/acme/__init__.py",
+      "future_annotations": false,
+      "definitions": []
+    },
+    {
+      "name": "acme.cache",
+      "path": "src/acme/cache.py",
+      "future_annotations": true,
+      "definitions": [
+        {
+          "kind": "class",
+          "name": "Cache",
+          "range": {
+            "start": 37,
+            "end": 61
+          },
+          "name_range": {
+            "start": 43,
+            "end": 48
+          },
+          "is_async": false,
+          "decorator_count": 0,
+          "type_parameter_count": 1
+        },
+        {
+          "kind": "function",
+          "name": "refresh",
+          "range": {
+            "start": 75,
+            "end": 133
+          },
+          "name_range": {
+            "start": 85,
+            "end": 92
+          },
+          "is_async": true,
+          "decorator_count": 1,
+          "type_parameter_count": 0
+        },
+        {
+          "kind": "function",
+          "name": "helper",
+          "range": {
+            "start": 136,
+            "end": 206
+          },
+          "name_range": {
+            "start": 140,
+            "end": 146
+          },
+          "is_async": false,
+          "decorator_count": 0,
+          "type_parameter_count": 0
+        }
+      ]
+    }
+  ],
+  "diagnostics": []
+}

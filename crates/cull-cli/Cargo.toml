@@ -1,0 +1,17 @@
+[package]
+name = "cull-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "cull"
+path = "src/main.rs"
+
+[dependencies]
+clap.workspace = true
+cull-core = { path = "../cull-core" }
+cull-python = { path = "../cull-python" }
+serde_json.workspace = true
