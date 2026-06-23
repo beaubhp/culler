@@ -115,13 +115,14 @@ These decisions are part of the v0 build contract.
 | Decision | v0 Direction |
 |---|---|
 | Parser boundary | Use a parser-neutral Cull IR. Parser-specific types cannot cross into `cull-core`. |
-| Parser frontend | Compare Ruff-aligned parser crates and `rustpython-parser` in Part 0. |
+| Parser frontend | Run an explicit Ruff viability gate, then compare against `rustpython-parser`. |
+| Source decoding | Decode Python source at the boundary and store canonical UTF-8 internally. |
 | Source ranges | Store canonical UTF-8 byte ranges; derive line and column positions lazily. |
 | Dense IDs | Use compact interned IDs backed by deterministic arenas. |
 | Identity model | Keep `SymbolId`, `BindingId`, and `DefId` separate. |
 | Binder | Use a two-pass binder plus conservative reaching-binding sets. |
 | Scopes and contexts | Separate lexical scopes from execution contexts. |
-| Target version | Model annotation semantics from target Python version and future imports. |
+| Target version | Separate grammar coverage, semantic support, and product support. |
 | Resolution | Use explicit resolved, ambiguous, external, and unresolved states. |
 | Partial analysis | Fail closed by default when included project files cannot be analyzed. |
 | Ordering | Sort inputs before interning and output; hash-map iteration never determines behavior. |
@@ -130,6 +131,13 @@ These decisions are part of the v0 build contract.
 | Benchmarks | Require a non-vacuous release gate with precision and recall. |
 
 The actual parser frontend remains undecided until the end of Part 0.
+
+For non-UTF-8 source files, byte ranges refer to Cull's decoded canonical UTF-8 source, not the
+original on-disk byte positions. This is acceptable for v0 because Cull does not edit files.
+
+The current candidate semantic matrix is Python 3.10 through 3.14. Part 0 may include Python 3.15
+as a forward-compatibility canary, but the final product-support matrix depends on the release date
+and proven semantic support.
 
 ## Core Semantic Model
 
@@ -549,16 +557,75 @@ No dead-code findings are emitted.
 - explicit and conventional source roots
 - flat and `src/` layouts
 - deterministic excludes and file discovery
-- Ruff-aligned parser spike versus `rustpython-parser`
 - parser-neutral Cull IR
+- shared parser corpus
+- Ruff pre-spike viability gate
+- Ruff-aligned parser adapter, if the viability gate passes
+- minimal `rustpython-parser` comparison adapter
 - target-version configuration
+- grammar, semantic, and product-support version policy
 - future-import detection
 - immutable source files and byte spans
+- Python-compatible source decoding
 - canonical module naming
 - top-level function and class inventory
 - CPython oracle harness for `ast` and `symtable`
 - golden snapshots
 - parser and lowering fuzz target
+
+### Parser Spike Sequence
+
+Use a biased but controlled side-by-side spike. Ruff is the presumed winner, not the predetermined
+winner.
+
+1. Define the Cull parser contract and shared corpus.
+2. Run the Ruff viability gate.
+3. If Ruff passes, implement its full Part 0 adapter.
+4. Implement the minimal `rustpython-parser` comparison adapter.
+5. Select one using the same corpus and hard gates.
+6. Delete the losing adapter after recording the evidence, unless it keeps clear test value.
+
+The Ruff viability gate can end the Ruff experiment immediately. It must confirm:
+
+- dependency or vendoring mechanism works
+- required API is accessible
+- Rust toolchain policy is acceptable
+- compile footprint is acceptable
+- license and pinning strategy are documented
+
+The shared hard gates are:
+
+- supported grammar parses successfully
+- definition and name spans use exact canonical UTF-8 byte ranges
+- diagnostics are structured and deterministic
+- parser-specific types never cross into `cull-core`
+- modern syntax is covered by the corpus
+- no panics occur on malformed source
+
+Version support is decided in three layers:
+
+- grammar coverage: which Python syntax the parser can consume
+- semantic support: which Python versions Cull models correctly
+- product support: which versions Cull officially promises at v0 release
+
+Use Python 3.10 through 3.14 as the current candidate semantic matrix. Include Python 3.15 syntax
+as a canary when practical.
+
+### Encoding Policy
+
+Cull uses canonical UTF-8 internally and Python-compatible decoding at the boundary.
+
+Part 0 implements:
+
+1. Read raw bytes.
+2. Detect an initial UTF-8 BOM.
+3. Inspect the first two physical lines for a Python coding declaration.
+4. Decode using the declared encoding, defaulting to UTF-8.
+5. Convert to Cull's canonical UTF-8 representation.
+6. Emit structured diagnostics for unsupported or invalid encodings.
+
+For decoded non-UTF-8 files, byte ranges refer to the canonical UTF-8 source, not original on-disk
+byte positions.
 
 ### Explicit Non-Goals
 
@@ -575,6 +642,7 @@ No dead-code findings are emitted.
 - `DefId`
 - `DefinitionKey`
 - source file identity
+- source decoding metadata
 - byte source ranges
 - definition kind
 - parser-neutral module IR
@@ -599,18 +667,22 @@ No dead-code findings are emitted.
 - syntax errors
 - Unicode identifiers
 - CRLF and LF line endings
-- supported encoding policy
+- encoding declarations
+- UTF-8 BOM
+- non-UTF-8 source
+- invalid encoding
 
 ### Acceptance Criteria
 
 Part 0 is complete when:
 
-1. The parser decision is recorded in the decision log.
-2. The selected frontend passes the syntax corpus with accurate byte ranges.
+1. The Ruff viability result and parser decision are recorded in the decision log.
+2. The selected frontend passes the shared syntax corpus with accurate byte ranges.
 3. Module and definition JSON is byte-for-byte deterministic.
 4. Parser-specific types do not cross into `cull-core`.
-5. Supported target-version and encoding policies are documented.
-6. Invalid source produces structured errors without panics.
+5. Grammar, semantic, and product-support version policies are documented.
+6. Encoding and canonical byte-range policies are documented.
+7. Invalid source produces structured errors without panics.
 
 ### Known Limitations
 
@@ -1207,13 +1279,15 @@ Keep decision records in this document for v0.
 | Decision | Status |
 |---|---|
 | Parser-neutral Cull IR | Fixed. |
-| Parser frontend | Open until Part 0 parser spike. |
-| Canonical byte-offset ranges | Fixed. |
+| Parser frontend | Open until Part 0 Ruff viability gate and parser spike. |
+| Canonical source decoding | Fixed. |
+| Canonical UTF-8 byte-offset ranges | Fixed. |
 | Compact interned IDs | Fixed. |
 | `SymbolId` / `BindingId` / `DefId` separation | Fixed. |
 | Two-pass binder | Fixed. |
 | Branch-aware reaching-binding sets | Fixed. |
 | Scope and execution-context separation | Fixed. |
+| Grammar, semantic, and product-support version split | Fixed. |
 | Target-version-aware annotations | Fixed. |
 | Typed reference facts | Fixed. |
 | Explicit resolution states | Fixed. |
@@ -1224,8 +1298,8 @@ Keep decision records in this document for v0.
 | Unusedness confidence separate from removal risk | Fixed. |
 | Three-crate workspace | Fixed. |
 | Benchmark release gate | Fixed. |
-| Non-UTF-8 source policy | Open until Part 0. |
-| Supported Python version matrix | Open until Part 0. |
+| Non-UTF-8 codec support | Open until Part 0. |
+| Product Python version matrix | Open until Part 0. |
 | Reaching-binding widening limit | Open until Part 1. |
 | Exact benchmark numeric thresholds | Open until Part 5 setup. |
 
@@ -1265,9 +1339,9 @@ These decisions truly cannot be closed until the Part 0 spike:
 
 | Decision | Why It Remains Open |
 |---|---|
-| Parser frontend | Needs measured comparison of spans, errors, syntax support, licensing, and update cost. |
-| Non-UTF-8 source policy | Needs parser behavior and fixture results before deciding reject versus limited support. |
-| Supported Python matrix | Needs parser support and target-version semantics validated against fixtures. |
+| Parser frontend | Needs Ruff viability results and measured parser comparison. |
+| Non-UTF-8 codec support | Needs decoder and parser behavior validated against fixtures. |
+| Product Python matrix | Needs release-date context and proven semantic support. |
 
 The plan is structurally frozen around parser-neutral IR, separate symbols/bindings/definitions,
 target-version-aware semantics, explicit resolution states, local uncertainty, fail-closed partial
