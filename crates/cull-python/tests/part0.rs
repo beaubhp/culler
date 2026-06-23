@@ -111,3 +111,24 @@ fn cpython_oracle_agrees_on_basic_top_level_definitions() {
 
     assert_eq!(oracle["definitions"], serde_json::Value::Array(definitions));
 }
+
+#[test]
+fn cpython_oracle_exposes_symtable_facts() {
+    let source = fixture("basic").join("src/acme/cache.py");
+    let oracle = Command::new("python3")
+        .arg(workspace_root().join("scripts/cpython_definition_oracle.py"))
+        .arg(&source)
+        .output()
+        .unwrap();
+    assert!(oracle.status.success());
+
+    let oracle: serde_json::Value = serde_json::from_slice(&oracle.stdout).unwrap();
+    let child_names = oracle["symtable"]["children"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|child| child["name"].as_str().unwrap())
+        .collect::<Vec<_>>();
+
+    assert_eq!(child_names, vec!["Cache", "refresh", "helper"]);
+}

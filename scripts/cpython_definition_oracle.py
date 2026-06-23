@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import ast
 import json
+import symtable
 import sys
 import tokenize
 from pathlib import Path
@@ -24,6 +25,36 @@ def absolute_range(node: ast.AST, starts: list[int]) -> dict[str, int]:
         "start": starts[node.lineno - 1] + node.col_offset,
         "end": starts[node.end_lineno - 1] + node.end_col_offset,
     }
+
+
+def symtable_facts(text: str, filename: str) -> dict[str, object]:
+    table = symtable.symtable(text, filename, "exec")
+    symbols = []
+    for name in sorted(table.get_identifiers()):
+        symbol = table.lookup(name)
+        symbols.append(
+            {
+                "name": name,
+                "is_assigned": symbol.is_assigned(),
+                "is_imported": symbol.is_imported(),
+                "is_namespace": symbol.is_namespace(),
+                "is_referenced": symbol.is_referenced(),
+            }
+        )
+
+    children = [
+        {
+            "name": child.get_name(),
+            "type": child.get_type(),
+            "line": child.get_lineno(),
+        }
+        for child in sorted(
+            table.get_children(),
+            key=lambda child: (child.get_lineno(), child.get_name(), child.get_type()),
+        )
+    ]
+
+    return {"symbols": symbols, "children": children}
 
 
 def main() -> int:
@@ -50,7 +81,15 @@ def main() -> int:
                 }
             )
 
-    print(json.dumps({"definitions": definitions}, sort_keys=True))
+    print(
+        json.dumps(
+            {
+                "definitions": definitions,
+                "symtable": symtable_facts(text, str(path)),
+            },
+            sort_keys=True,
+        )
+    )
     return 0
 
 
