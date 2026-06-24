@@ -3,7 +3,7 @@
 Document type: engineering specification  
 Status: frozen v0 scope  
 Audience: implementation, benchmark, and product decisions  
-Last updated: 2026-06-20
+Last updated: 2026-06-24
 
 ## Purpose
 
@@ -75,16 +75,38 @@ The project loader should support:
 - simple flat package layouts
 - Python files filtered by excludes
 - package `__init__.py` files
-- namespace-package-like directories when local resolution requires them
+- local namespace-package portions when local resolution requires them
 
-The source tree is authoritative for project-local resolution. Environment metadata is not required for v0.
+The source tree is authoritative for project-local resolution. Environment metadata is not required
+for v0.
+
+Project-local module providers are resolved by ordered path-entry search. For each source root or
+package path entry in order, Cull checks for a regular package, then a module file, then records a
+namespace-package portion. The first concrete package or module provider wins immediately.
+Namespace-package portions are combined only when the complete ordered search finds no concrete
+provider. Environment paths, zip providers, native modules, import hooks, and dynamically modified
+package paths are not simulated in v0; they become explicit uncertainty.
 
 ## Operating Modes
 
+Cull defaults to `auto` mode. The default must not infer a closed-world application assumption from
+weak heuristics.
+
+### Auto Mode
+
+Auto mode is the default trust-first policy for projects that have not declared application or
+library semantics.
+
+| Surface | v0 Behavior |
+|---|---|
+| private top-level definitions | May be high-confidence findings when evidence supports it. |
+| public top-level definitions | At most `Review`. |
+| exported definitions | Conservative; at most `Review` unless an explicit mode allows stronger output. |
+
 ### Application Mode
 
-Application mode assumes the repository contains executable application code. Public top-level
-definitions may be reported when they are unreferenced or unreachable from recognized roots.
+Application mode is an explicit closed-world policy for executable application code. Public and
+private top-level definitions may be high-confidence findings when static evidence supports it.
 
 Recognized roots in v0 are:
 
@@ -117,6 +139,30 @@ The default policy is conservative:
 
 Library findings may say unused within this repository. They should not imply safe removal unless
 the evidence supports that claim.
+
+### Definition Surface Classification
+
+Cull classifies top-level function and class definitions using this precedence:
+
+1. Explicitly exported.
+2. Recognized module protocol hook.
+3. Special dunder.
+4. Private.
+5. Public.
+
+Policy:
+
+| Surface | v0 Behavior |
+|---|---|
+| exported | A definite export is an inbound export reference and prevents `CULL001`/`CULL002` independently of project mode. |
+| recognized module protocol hook | Non-reportable in v0. Examples include top-level `__getattr__` and `__dir__`. |
+| special dunder | At most `Review` in every mode for v0. |
+| private | A leading single underscore, excluding dunder names. May be high confidence when other evidence supports it. |
+| public | A name without a leading underscore. Mode controls confidence for public-but-not-exported definitions. |
+
+Export evidence overrides spelling. An explicitly exported underscore name is still exported.
+Public bindings in package `__init__.py` are package public surface in `auto` and `library` modes.
+Mode only affects public-but-not-exported definitions and finding confidence.
 
 ## Architecture
 
@@ -255,20 +301,39 @@ It must support:
 
 Unknown module resolution should attach uncertainty instead of producing confident findings.
 
+Import and alias resolution must attach module or value provenance to concrete `BindingId`s and use
+Part 1 reaching-binding results. Cross-module references are not created from raw-name matching.
+Cross-module reference facts preserve local may-execution, phase, production/test origin,
+type-only/lazy-annotation classification, and flow uncertainty. Locally unreachable references do
+not create inbound edges; references in dormant function bodies still count for unreferenced analysis
+because root reachability is separate.
+
+Loading a submodule creates an attribute on its parent package, but Cull models that as a synthetic
+namespace binding event rather than a timeless fact. The event participates in the same ordered or
+conservative module-namespace state as package assignments, imports, re-exports, module attribute
+resolution, and `__all__` slot resolution. When Cull cannot prove the execution order, it preserves
+all possible slot bindings and attaches partial-initialization or order uncertainty.
+
 ### 5. Export Model
 
 Minimal v0 export support includes:
 
 | Export Pattern | v0 Behavior |
 |---|---|
-| `__all__ = ["A", "b"]` | Static export references for listed names. |
-| `__all__ = ("A", "b")` | Static export references for listed names. |
+| `__all__ = ["A", "b"]` | Static export references for listed names when the assignment reaches module exit. |
+| `__all__ = ("A", "b")` | Static export references for listed names when the assignment reaches module exit. |
 | `from .models import User` in `__init__.py` | Direct package re-export. |
 | `from .models import User as PublicUser` | Aliased re-export. |
 | public binding in package `__init__.py` | Public package surface in library mode. |
 | dynamic `__all__` construction | Suppress or downgrade affected export-sensitive findings. |
 
 The export model is required in v0 because library mode depends on it.
+
+`__all__` is derived from module-exit state, not from every syntactic assignment. Multiple reaching
+literal list or tuple assignments are unioned conservatively. Unsupported flow, dynamic mutation,
+dynamic construction, or partially unresolved entries become export uncertainty and fail closed for
+findings they could invalidate. Export references target module public-name slots or symbols, not
+point-in-time bindings; slot resolution then determines possible binding or definition targets.
 
 ### 6. Root Discovery
 
@@ -306,10 +371,11 @@ Initial uncertainty sources:
 | variable-driven `importlib` calls | Downgrade import and reachability findings. |
 | star imports | Downgrade unless resolved through static `__all__`. |
 | dynamic `__all__` | Suppress or downgrade export-sensitive findings. |
+| unproven package-attribute order or circular partial initialization | Preserve possible targets and downgrade affected findings. |
 | monkey-patching patterns | Downgrade affected module or symbol area. |
 | unknown decorators | Downgrade decorated definitions or referenced targets as appropriate. |
 | unresolved local imports | Downgrade affected findings. |
-| ambiguous namespace-like packages | Mark environment-dependent or review. |
+| ambiguous or environment-dependent namespace providers | Mark environment-dependent or review. |
 
 The uncertainty model should be visible in output. Hidden uncertainty is a bug.
 
@@ -356,7 +422,7 @@ Every diagnostic must include:
 | inbound_references | Count and typed summary. |
 | reachability | Root traversal result. |
 | exports | Export status and source. |
-| mode_effect | Application or library policy effect. |
+| mode_effect | Auto, application, or library policy effect. |
 | uncertainty | Dynamic or unresolved factors. |
 | explanation | Human-readable evidence trail. |
 
@@ -414,6 +480,10 @@ Evidence:
 - no relevant uncertainty detected
 ```
 
+Default text output shows high-confidence findings only. `Review` findings are available in JSON.
+Suppressed candidates remain internal/debug output. Part 2 does not include a human-facing
+`--show-review` option.
+
 ## CLI and Configuration
 
 Initial commands:
@@ -421,14 +491,23 @@ Initial commands:
 ```bash
 cull check .
 cull check . --format json
+cull check . --mode application
 cull explain acme.cache::_decode_legacy_key
 ```
+
+Exit codes:
+
+| Code | Meaning |
+|---|---|
+| 0 | No default-visible high-confidence findings. |
+| 1 | One or more default-visible high-confidence findings. |
+| 2 | Configuration, project discovery, decoding, parsing, or analysis failure. |
 
 Initial configuration:
 
 ```toml
 [tool.cull]
-mode = "application"
+mode = "auto"
 src = ["src"]
 tests = ["tests"]
 exclude = ["migrations"]

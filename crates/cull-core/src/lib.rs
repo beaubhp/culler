@@ -12,8 +12,12 @@ pub use ids::{
 };
 pub use ir::{DefinitionIr, DefinitionKey, DefinitionKind, ModuleIr};
 pub use output::{
-    DebugBindingModule, DebugBindingsOutput, DebugDefinition, DebugDefinitionsOutput, DebugModule,
-    DebugReferencesOutput, SourceRootOutput,
+    CheckOutput, CheckSummary, DebugBindingModule, DebugBindingsOutput, DebugDefinition,
+    DebugDefinitionsOutput, DebugModule, DebugReferencesOutput, DefinitionSurface, Finding,
+    FindingConfidence, FindingDefinition, FindingExport, FindingExportKind, FindingModeEffect,
+    FindingOriginSummary, FindingPhaseSummary, FindingReachability, FindingReachabilityStatus,
+    FindingReference, FindingReferenceKind, FindingRemovalRisk, FindingRule, FindingType,
+    FindingUncertainty, FindingUncertaintyKind, ProjectMode, SourceRootOutput,
 };
 pub use semantic::{
     AnnotationEvaluation, AnnotationSemantics, BindingFact, BindingInput, BindingKind,

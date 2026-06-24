@@ -1,14 +1,16 @@
 use std::{fs, path::PathBuf};
 
 use cull_core::{
-    DebugBindingModule, DebugBindingsOutput, DebugDefinition, DebugDefinitionsOutput, DebugModule,
-    DebugReferencesOutput, Diagnostic, PythonVersion, SemanticGraph, SemanticGraphBuilder,
-    SourceRootOutput,
+    CheckOutput, DebugBindingModule, DebugBindingsOutput, DebugDefinition, DebugDefinitionsOutput,
+    DebugModule, DebugReferencesOutput, Diagnostic, ProjectMode, PythonVersion, SemanticGraph,
+    SemanticGraphBuilder,
 };
+use ruff_python_ast::ModModule;
 
 use crate::{
+    check::analyze_part2,
     decode_python_source,
-    discovery::{discover_project, DiscoveryOptions},
+    discovery::{discover_project, DiscoveredModule, DiscoveredProject, DiscoveryOptions},
     flow_analysis::analyze_module_flow,
     frontend::{ParseInput, PythonFrontend},
     part1d_evidence::finalize_part1d_facts,
@@ -35,6 +37,14 @@ pub struct DebugReferencesOptions {
     pub project_root: PathBuf,
     pub source_roots: Vec<PathBuf>,
     pub target_python: Option<PythonVersion>,
+}
+
+#[derive(Clone, Debug)]
+pub struct CheckOptions {
+    pub project_root: PathBuf,
+    pub source_roots: Vec<PathBuf>,
+    pub target_python: Option<PythonVersion>,
+    pub mode: Option<ProjectMode>,
 }
 
 pub fn analyze_debug_definitions(
@@ -137,19 +147,18 @@ pub fn analyze_debug_bindings(
         options.source_roots,
         options.target_python,
     )?;
-    let SemanticDebugData {
-        target_python,
-        project_root,
-        source_roots,
+    let SemanticProjectData {
+        project,
         graph,
         diagnostics,
+        ..
     } = output;
 
     Ok(DebugBindingsOutput {
         schema_version: 1,
-        target_python,
-        project_root,
-        source_roots,
+        target_python: project.target_python,
+        project_root: crate::paths::slash_path(&project.project_root),
+        source_roots: project.source_root_output(),
         modules: debug_modules(graph.modules),
         scopes: graph.scopes,
         contexts: graph.contexts,
@@ -168,19 +177,18 @@ pub fn analyze_debug_references(
         options.source_roots,
         options.target_python,
     )?;
-    let SemanticDebugData {
-        target_python,
-        project_root,
-        source_roots,
+    let SemanticProjectData {
+        project,
         graph,
         diagnostics,
+        ..
     } = output;
 
     Ok(DebugReferencesOutput {
         schema_version: 1,
-        target_python,
-        project_root,
-        source_roots,
+        target_python: project.target_python,
+        project_root: crate::paths::slash_path(&project.project_root),
+        source_roots: project.source_root_output(),
         modules: debug_modules(graph.modules),
         scopes: graph.scopes,
         contexts: graph.contexts,
@@ -198,19 +206,34 @@ pub fn analyze_debug_references(
     })
 }
 
-struct SemanticDebugData {
-    target_python: PythonVersion,
-    project_root: String,
-    source_roots: Vec<SourceRootOutput>,
-    graph: SemanticGraph,
-    diagnostics: Vec<Diagnostic>,
+pub(crate) struct SemanticProjectData {
+    pub(crate) project: DiscoveredProject,
+    pub(crate) parsed_modules: Vec<ParsedProjectModule>,
+    pub(crate) graph: SemanticGraph,
+    pub(crate) diagnostics: Vec<Diagnostic>,
+}
+
+pub(crate) struct ParsedProjectModule {
+    pub(crate) module: DiscoveredModule,
+    pub(crate) source_text: String,
+    pub(crate) syntax: ModModule,
+}
+
+pub fn analyze_check(options: CheckOptions) -> Result<CheckOutput, Diagnostic> {
+    let mode_override = options.mode;
+    let data = analyze_semantic_project(
+        options.project_root,
+        options.source_roots,
+        options.target_python,
+    )?;
+    Ok(analyze_part2(data, mode_override))
 }
 
 fn analyze_semantic_project(
     project_root: PathBuf,
     source_roots: Vec<PathBuf>,
     target_python: Option<PythonVersion>,
-) -> Result<SemanticDebugData, Diagnostic> {
+) -> Result<SemanticProjectData, Diagnostic> {
     let project = discover_project(DiscoveryOptions {
         project_root,
         explicit_source_roots: source_roots,
@@ -220,6 +243,7 @@ fn analyze_semantic_project(
 
     let mut diagnostics = project.diagnostics.clone();
     let mut builder = SemanticGraphBuilder::new();
+    let mut parsed_modules = Vec::new();
 
     for module in &project.modules {
         let bytes = match fs::read(&module.path) {
@@ -264,6 +288,11 @@ fn analyze_semantic_project(
                     module.origin_evidence,
                 );
                 analyze_module_flow(&mut builder, input.module_id, &parsed, &input.source.text);
+                parsed_modules.push(ParsedProjectModule {
+                    module: module.clone(),
+                    source_text: input.source.text.clone(),
+                    syntax: parsed,
+                });
             }
             Err(mut parse_diagnostics) => diagnostics.append(&mut parse_diagnostics),
         }
@@ -285,10 +314,9 @@ fn analyze_semantic_project(
     });
 
     let graph = builder.finish();
-    Ok(SemanticDebugData {
-        target_python: project.target_python,
-        project_root: crate::paths::slash_path(&project.project_root),
-        source_roots: project.source_root_output(),
+    Ok(SemanticProjectData {
+        project,
+        parsed_modules,
         graph,
         diagnostics,
     })

@@ -5,7 +5,8 @@ use std::{
 };
 
 use cull_core::{
-    Diagnostic, FileId, ModuleId, OriginDomain, OriginEvidence, PythonVersion, SourceRootOutput,
+    Diagnostic, FileId, ModuleId, OriginDomain, OriginEvidence, ProjectMode, PythonVersion,
+    SourceRootOutput,
 };
 use globset::{Glob, GlobSet, GlobSetBuilder};
 use thiserror::Error;
@@ -44,6 +45,7 @@ pub struct DiscoveryOptions {
 pub struct DiscoveredProject {
     pub project_root: PathBuf,
     pub target_python: PythonVersion,
+    pub mode: ProjectMode,
     pub source_roots: Vec<SourceRoot>,
     pub modules: Vec<DiscoveredModule>,
     pub diagnostics: Vec<Diagnostic>,
@@ -175,6 +177,7 @@ pub fn discover_project(options: DiscoveryOptions) -> Result<DiscoveredProject, 
     Ok(DiscoveredProject {
         project_root,
         target_python,
+        mode: config.mode,
         source_roots,
         modules,
         diagnostics,
@@ -377,7 +380,7 @@ fn detect_module_collisions(modules: &[DiscoveredModule], diagnostics: &mut Vec<
         if paths.len() <= 1 {
             continue;
         }
-        diagnostics.push(Diagnostic::error(
+        diagnostics.push(Diagnostic::warning(
             "CULL_P0005",
             format!(
                 "multiple source files map to module `{name}`: {}",

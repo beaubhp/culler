@@ -489,15 +489,55 @@ Do not treat all annotations as one uniform reference kind.
 
 Use explicit resolution states for imports, exports, roots, and similar analysis.
 
+Project-local provider lookup is path-entry-first. For each ordered source root or package path entry,
+check for a regular package, then a module file, then record a namespace-package portion. The first
+concrete package or module provider wins. Local namespace-package portions are combined only if the
+entire ordered search finds no concrete provider. Environment paths, zip providers, native modules,
+import hooks, and dynamically modified package paths are explicit uncertainty, not simulated inputs.
+
+Imports, aliases, literal dynamic-import return values, and module attribute chains must resolve from
+`BindingId` provenance and Part 1 reaching-binding facts. Do not create cross-module references from
+raw spelling matches. Cross-module references preserve local may-execution, phase, origin domain,
+type-only/lazy-annotation classification, and uncertainty.
+
+Loading a submodule creates a synthetic parent-package attribute, but Cull models it as a namespace
+binding event rather than a timeless fact. When execution order is proven, the event participates in
+ordered package namespace state. Otherwise Cull preserves all possible slot bindings and attaches
+partial-initialization or order uncertainty.
+
+Part 2B and Part 2C share one exact project namespace solver. Imports, package attributes, star
+imports, and re-exports are mutually dependent; they must not be solved as unrelated passes with
+conflicting candidate sets. The solver:
+
+1. Resolves module-load requests.
+2. Attaches module or value provenance to import `BindingId`s.
+3. Seeds explicit module namespace slots.
+4. Adds synthetic parent-package attribute binding events.
+5. Resolves direct module attributes and from-import candidates.
+6. Computes module-exit export surfaces.
+7. Expands supported star imports into synthetic binding events.
+8. Propagates direct and aliased re-exports.
+9. Repeats until exact candidate sets stop changing.
+
+Do not truncate target sets. If an SCC or project namespace region exceeds a resource budget, mark
+the affected namespace analysis unsupported, preserve structured failure evidence, and fail closed
+for findings that depend on it.
+
 Supported v0 export patterns:
 
-- literal list or tuple `__all__`
+- literal list or tuple `__all__` from module-exit state
 - direct package re-exports
 - aliased package re-exports
 - conservative public bindings in package `__init__.py`
 - static star imports through known exports
 
-Dynamic exports become uncertainty.
+`__all__` targets module public-name slots or symbols, not point-in-time bindings. If some module-exit
+paths have an explicit literal `__all__` and other paths have no `__all__`, both the explicit names
+and the implicit public surface are possible. Dynamic exports, unsupported `__all__` mutation,
+unsupported module-exit flow, and partially unresolved export entries become uncertainty.
+
+A definite export is an inbound export reference and prevents `CULL001`/`CULL002` independently of
+project mode. Mode only affects public-but-not-exported definitions and finding confidence.
 
 Supported v0 root sources:
 
@@ -535,6 +575,32 @@ Policy:
 known. A project reaches `Complete` only when the user explicitly asserts that configured roots are
 complete, or when Cull has an equally strong closed-world condition. Otherwise root coverage remains
 `Partial`.
+
+### Mode Policy
+
+Cull defaults to `auto` mode. Auto mode does not infer closed-world application semantics from weak
+heuristics.
+
+| Mode | Policy |
+|---|---|
+| `auto` | Private top-level definitions may be high confidence. Public top-level definitions and exported definitions are at most `Review`. |
+| `application` | Public and private top-level definitions may be high confidence when evidence supports it. |
+| `library` | Exported and public top-level definitions are conservative. Private top-level definitions are analyzed normally. |
+
+The CLI may override configuration, for example `cull check . --mode application`.
+
+Definition surface classification uses this precedence:
+
+1. Explicitly exported.
+2. Recognized module protocol hook.
+3. Special dunder.
+4. Private.
+5. Public.
+
+Recognized module protocol hooks such as top-level `__getattr__` and `__dir__` are non-reportable in
+v0. Other top-level dunder function and class definitions are special and at most `Review` in every
+mode. Leading single-underscore names are private unless they are dunder names. Export evidence
+overrides spelling.
 
 ### Test-Domain Policy
 
@@ -592,8 +658,9 @@ Edges, resolutions, root state, exports, mode effects, origin domains, definitio
 risk, and uncertainty must carry enough information to render explanations later. Do not construct
 explanations by reverse-engineering final diagnostics.
 
-Suppressed candidates stay out of normal text output. They remain available in debug or internal
-JSON so the analysis is explainable without making the normal CLI noisy.
+Default text output shows high-confidence findings only. `Review` findings remain available through
+JSON or an explicit human-facing option. Suppressed candidates stay internal/debug-only so the
+analysis is explainable without making the normal CLI noisy.
 
 ## Cross-Cutting Engineering Rules
 
@@ -1089,6 +1156,7 @@ unreferenced findings.
 ```bash
 cull check path/to/project
 cull check path/to/project --format json
+cull check path/to/project --mode application
 ```
 
 Public findings begin:
@@ -1098,24 +1166,43 @@ CULL001 unreferenced-function
 CULL002 unreferenced-class
 ```
 
+Default text output shows high-confidence findings only. JSON includes high-confidence and `Review`
+findings. Suppressed candidates stay internal/debug-only. Part 2 does not add `--show-review`; a
+human-facing Review option is deferred to Part 4.
+
+Exit codes:
+
+| Code | Meaning |
+|---|---|
+| 0 | No default-visible high-confidence findings. |
+| 1 | One or more default-visible high-confidence findings. |
+| 2 | Configuration, project discovery, decoding, parsing, or analysis failure. |
+
 ### Included Semantics
 
 - deterministic module index over ordered source roots
+- path-entry-first provider precedence
+- local namespace-package portions only
 - flat and `src/` layouts
 - absolute local imports
 - explicit relative imports
 - imports in nested contexts
+- `BindingId`-based import provenance
 - aliases and direct assignment aliases
 - module attribute resolution, including `module.func`
+- module attribute reads, literal writes, deletes, and dynamic-write uncertainty
 - package attribute versus submodule candidate sets
+- synthetic submodule attributes as namespace binding events
 - circular imports and partial-initialization uncertainty
 - literal dynamic imports
 - fixed-point chained re-exports
-- literal list or tuple `__all__`
+- literal list or tuple `__all__` from module-exit state
 - static star import through known exports
+- synthetic binding events for supported star imports
 - direct package re-exports
 - aliased package re-exports
 - package public bindings
+- auto mode policy
 - application mode policy
 - library mode policy
 - dynamic export uncertainty
@@ -1134,13 +1221,19 @@ CULL002 unreferenced-class
 ### Data-Model Changes
 
 - module resolver
+- module names, providers, and local namespace-package portions
+- shared project namespace fixed-point solver
 - import binding targets
+- import provenance attached to `BindingId`s
 - module attribute references
+- package namespace binding events
 - export references
 - package surface model
+- auto mode policy
 - application mode policy
 - library mode policy
 - import uncertainty
+- export uncertainty
 - public diagnostic records
 - JSON schema version
 
@@ -1152,21 +1245,89 @@ CULL002 unreferenced-class
 - `from pkg import name as alias`
 - `from .mod import name`
 - module aliases and attribute access
+- path-entry-first provider precedence
+- regular package versus module collisions
+- local namespace-package portions
+- nested namespace resolution
+- duplicate roots and physical files
+- excluded providers
+- from-import attribute versus submodule fallback
+- package attribute shadowing
+- synthetic parent-package submodule attributes
+- ambiguous synthetic package attribute order
+- package attribute overwrite and delete
+- conditional imports
 - chained re-exports
 - local and external name collisions
 - ambiguous namespace fragments
 - circular imports
 - literal dynamic imports
+- shadowed import helper names
+- `__import__` return behavior
 - dynamic package paths
 - `__all__ = ["User"]`
 - `__all__ = ("User",)`
+- repeated and conditional module-exit `__all__`
+- conditional `__all__` with an absent path
 - dynamic `__all__`
+- star imports and synthetic bindings
 - `from .models import User` in `__init__.py`
 - `from .models import User as PublicUser`
+- circular re-exports
+- module `__getattr__`
+- auto-mode public definitions
 - application public definitions
 - library public and private definitions
+- special dunder definitions
+- recognized module protocol hooks
+- test-only references
+- type-only references
 - decorated and effectful candidates
+- locally unreachable references
 - unresolved imports localized to affected findings
+- resource-budget failure
+- randomized discovery and processing order
+
+### Public JSON Fields
+
+Public JSON output includes a top-level `schema_version`. Each public finding includes:
+
+- rule ID
+- finding ID
+- definition identity and location
+- confidence
+- inbound reference summaries, including cross-module references
+- export status
+- project mode and mode effect
+- import and export uncertainty
+- origin-domain summaries
+- reference-phase summaries
+- removal risk
+- project completeness
+- root reachability as `not_computed`
+
+### Implementation Sequence
+
+**Part 2A: Module namespace model.** Module names versus providers, regular modules and packages,
+local namespace-package portions, ordered path-entry precedence, relative package context,
+deterministic module index, collision diagnostics, and environment uncertainty.
+
+**Part 2B: Import and attribute resolution.** Ordinary import forms, import binding provenance,
+attribute versus submodule lookup, synthetic parent-package attribute bindings, assignment aliases,
+module attribute chains, module attribute writes and deletes, narrow literal dynamic imports, and
+circular-import SCC uncertainty.
+
+**Part 2C: Exports and modes.** Module-exit `__all__`, direct and aliased re-exports, package
+public-name slots, static star imports, synthetic star-import binding events, shared monotone
+namespace fixed point, module `__getattr__` residual uncertainty, and
+`auto`/`application`/`library` policy.
+
+**Part 2D: Public findings.** `CULL001`, `CULL002`, evidence-backed finding records, JSON schema v1,
+deterministic text, public `cull check`, and exit codes.
+
+**Part 2E: Hardening.** Synthetic import/export fixture matrix, randomized discovery-order tests,
+exact re-export convergence tests, resource-budget fail-closed tests, one application checkpoint,
+one library checkpoint, Vulture/deadcode smoke comparison, and implementation note.
 
 ### Acceptance Criteria
 
@@ -1174,12 +1335,19 @@ Part 2 is complete when:
 
 1. Supported imports resolve to exact local target sets.
 2. Module attribute references prevent false unreferenced findings.
-3. Chained re-exports converge deterministically.
-4. Library public surfaces are conservative.
-5. Unresolved or ambiguous imports cannot create high-confidence findings they could invalidate.
-6. Definitions with nontrivial definition-time effects are not presented as safe deletions.
-7. Public text and JSON findings are deterministic and evidence-backed.
-8. A small real-repository checkpoint shows no known high-confidence cross-module false positives.
+3. Imports, package attributes, star imports, and re-exports converge through one exact fixed-point
+   solver or fail closed with structured evidence.
+4. Module-exit `__all__` facts reflect reaching assignments rather than every syntactic assignment.
+5. Chained re-exports converge deterministically.
+6. Synthetic parent-package attributes preserve possible slot bindings when order is not proven.
+7. Auto and library public surfaces are conservative.
+8. Special dunder definitions are at most `Review`, and recognized module protocol hooks are
+   non-reportable.
+9. Unresolved, ambiguous, dynamic, environment-dependent, or incomplete export behavior cannot
+   create high-confidence findings it could invalidate.
+10. Definitions with nontrivial definition-time effects are not presented as safe deletions.
+11. Public text and JSON findings are deterministic and evidence-backed.
+12. A small real-repository checkpoint shows no known high-confidence cross-module false positives.
 
 ### Known Limitations
 
@@ -1188,8 +1356,19 @@ they are not mapped to distributions.
 
 ### Benchmark Gate
 
-Run synthetic cross-module fixtures and a small same-name collision comparison against Vulture and
-`deadcode`.
+Run the full adversarial cross-module fixture matrix listed above and a small same-name collision
+comparison against Vulture and `deadcode`.
+
+Before Part 2 is complete, run and record two real-repository checkpoints:
+
+| Domain | Repository | Tag | Resolved commit SHA | Mode |
+|---|---|---|---|---|
+| application | `adamchainz/django-upgrade` | `1.30.0` | `1db0cbd209d6c4dc78191593942e6269fae99e8d` | `application` |
+| library | `pallets/itsdangerous` | `2.2.0` | `096c8d42545d3b68ea21a4f890fb2b2d8979c0bd` | `library` |
+
+For each checkpoint, record repository, tag, resolved commit SHA, Cull mode, target Python, included
+paths, excludes, Cull output, Vulture version and output, `deadcode` version and output, manual
+adjudication, runtime, and peak memory. Do not track moving branches for checkpoint evidence.
 
 ## Part 3: Root Reachability
 
@@ -1483,7 +1662,7 @@ Part 5 is complete when:
 
 1. All engineering-spec acceptance criteria pass.
 2. The benchmark includes synthetic fixtures and three to five reviewed repositories.
-3. Application and library results are reported separately.
+3. Auto, application, and library results are reported separately.
 4. Baseline commands, versions, excludes, and target files are recorded.
 5. Precision, recall, F1, runtime, and peak memory are reported.
 6. High-confidence false positives are counted explicitly.

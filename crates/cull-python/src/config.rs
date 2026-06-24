@@ -1,6 +1,6 @@
 use std::{fs, path::Path};
 
-use cull_core::{OriginEvidence, PythonVersion};
+use cull_core::{OriginEvidence, ProjectMode, PythonVersion};
 use serde::Deserialize;
 use thiserror::Error;
 
@@ -9,6 +9,7 @@ pub struct ProjectConfig {
     pub source_roots: Vec<String>,
     pub excludes: Vec<String>,
     pub target_python: Option<PythonVersion>,
+    pub mode: ProjectMode,
     pub test_paths: Vec<String>,
     pub test_path_origin_evidence: Option<OriginEvidence>,
 }
@@ -19,6 +20,7 @@ impl ProjectConfig {
             source_roots: Vec::new(),
             excludes: Vec::new(),
             target_python: None,
+            mode: ProjectMode::Auto,
             test_paths: Vec::new(),
             test_path_origin_evidence: None,
         }
@@ -50,6 +52,8 @@ pub enum ConfigError {
     Read(#[from] std::io::Error),
     #[error("failed to parse pyproject.toml: {0}")]
     Parse(#[from] toml::de::Error),
+    #[error("invalid [tool.cull].mode `{0}`; expected auto, application, or library")]
+    InvalidMode(String),
 }
 
 pub fn load_project_config(project_root: &Path) -> Result<ProjectConfig, ConfigError> {
@@ -87,6 +91,13 @@ pub fn load_project_config(project_root: &Path) -> Result<ProjectConfig, ConfigE
         (pytest_test_paths, pytest_test_path_origin_evidence)
     };
 
+    let mode = match cull.mode.as_deref() {
+        Some(value) => {
+            parse_mode(value).ok_or_else(|| ConfigError::InvalidMode(value.to_owned()))?
+        }
+        None => ProjectMode::Auto,
+    };
+
     Ok(ProjectConfig {
         source_roots: cull.src.map(StringOrVec::into_vec).unwrap_or_default(),
         excludes: cull.exclude.unwrap_or_default(),
@@ -94,6 +105,7 @@ pub fn load_project_config(project_root: &Path) -> Result<ProjectConfig, ConfigE
             .target_python
             .or(cull.target_version)
             .and_then(|value| value.parse().ok()),
+        mode,
         test_paths,
         test_path_origin_evidence,
     })
@@ -117,6 +129,7 @@ struct ToolCull {
     target_python: Option<String>,
     target_version: Option<String>,
     tests: Option<StringOrVec>,
+    mode: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -142,5 +155,14 @@ impl StringOrVec {
             Self::One(value) => vec![value],
             Self::Many(values) => values,
         }
+    }
+}
+
+fn parse_mode(value: &str) -> Option<ProjectMode> {
+    match value {
+        "auto" => Some(ProjectMode::Auto),
+        "application" => Some(ProjectMode::Application),
+        "library" => Some(ProjectMode::Library),
+        _ => None,
     }
 }

@@ -15,3 +15,6 @@ clap.workspace = true
 cull-core = { path = "../cull-core" }
 cull-python = { path = "../cull-python" }
 serde_json.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
