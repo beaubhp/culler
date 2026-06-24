@@ -154,6 +154,9 @@ Cull uses three separate identity layers.
 `DefId` may exist for methods and nested definitions when the semantic model needs them, but only
 top-level function and class definitions are reportable in v0.
 
+`BindingSetId` may be used to intern deterministic sets of `BindingId`s. It is a compact analysis
+handle, not a fourth identity layer.
+
 Use compact typed IDs during analysis. Keep separate display keys for output.
 
 ```text
@@ -165,10 +168,11 @@ across edits in v0.
 
 ### Binding and Reaching Targets
 
-Python bindings are ordered. Redefinitions, imports, assignments, and deletes can replace or
-remove earlier bindings. Cull must not treat a module as an unordered symbol table.
+Python bindings are ordered. Redefinitions, imports, assignments, and deletes can replace, shadow,
+or remove earlier bindings. Cull must not treat a module as an unordered symbol table.
 
-References resolve to possible reaching bindings.
+A reference first resolves lexically to a symbol slot. A separate reaching-binding analysis then
+determines which binding events may occupy that slot when the reference can execute.
 
 ```rust
 enum Resolution<T> {
@@ -179,7 +183,36 @@ enum Resolution<T> {
 }
 ```
 
-Unresolved or ambiguous analysis never silently becomes an unused finding.
+The lexical target and runtime binding state are intentionally separate.
+
+```rust
+enum LookupSemantics {
+    Direct,
+    ClassLocalThenGlobal {
+        global_fallback: Resolution<SymbolId>,
+    },
+}
+
+enum ReachingBindings {
+    NotApplicable,
+    Known(BindingSetId),
+    MaybeUnbound(BindingSetId),
+    LateBound(LateBindingKind),
+    Unknown(UnknownReason),
+}
+
+enum LateBindingKind {
+    Global,
+    FreeVariable,
+}
+```
+
+`LateBound(Global)` and `LateBound(FreeVariable)` represent lookups that cannot be reduced to the
+binding visible when the function was created. Class body fallback is modeled through
+`LookupSemantics::ClassLocalThenGlobal`, because a class body first checks the class-local namespace
+and then falls back to the module global namespace when that local name is unbound.
+
+Unresolved, ambiguous, late-bound, or unknown analysis never silently becomes an unused finding.
 
 Example:
 
@@ -194,14 +227,14 @@ else:
 handler()
 ```
 
-The final reference may reach either definition. Cull must preserve both possible bindings instead
-of arbitrarily choosing one.
+The final reference lexically targets `handler`. Its binding state may contain either definition.
+Cull must preserve both possible bindings instead of arbitrarily choosing one.
 
-### Two-Pass Binder
+### Binder and Flow Analysis
 
-Pass 1 establishes lexical ownership and binding sites.
+Use three conceptual stages.
 
-It collects:
+Scope collection establishes lexical ownership and binding sites. It collects:
 
 - bindings
 - `global` declarations
@@ -214,13 +247,17 @@ It collects:
 - deletes
 - lexical scopes
 
-Pass 2 resolves references using the completed block binding information.
+Lexical resolution uses the completed block information to resolve each name use to `SymbolId`,
+`External`, or an explicit unresolved state.
 
-It must:
+The two-pass binder refers to scope collection and lexical resolution. Branches, loops, `try`,
+`match`, deletion, and widening belong to a separate intraprocedural flow engine.
+
+Reaching-binding analysis must:
 
 - preserve binding order
 - preserve redefinition behavior
-- produce resolved, ambiguous, external, or unresolved outcomes
+- compute known, maybe-unbound, late-bound, or unknown binding states
 - use conservative branch-aware reaching-binding sets
 - widen to an explicit unknown state when target sets exceed a documented limit
 
@@ -257,9 +294,11 @@ Each reference records:
 ```rust
 struct ReferenceFact {
     source_context: ContextId,
+    lexical_target: Resolution<SymbolId>,
+    lookup: LookupSemantics,
+    binding_state: ReachingBindings,
     phase: ReferencePhase,
     role: ReferenceRole,
-    targets: Resolution<BindingId>,
     origin_domain: OriginDomain,
     span: TextRange,
 }
@@ -698,11 +737,11 @@ discovery order.
 
 ### Goal
 
-Implement exact lexical identity and conservative possible-target resolution inside modules.
+Implement exact lexical identity and conservative same-module binding facts.
 
 ### User-Visible Behavior
 
-Hidden debug commands expose scopes, binding versions, and reference targets.
+Hidden debug commands expose scopes, binding versions, lookup semantics, and reference facts.
 
 ```bash
 cull debug bindings path/to/project
@@ -724,13 +763,16 @@ Part 1 findings are limited to:
 - methods and nested functions indexed for resolution
 - `SymbolId`, `BindingId`, and `DefId` separation
 - CPython-aligned local, global, nonlocal, and free classification
-- two-pass binding
+- two-pass lexical binder
+- separate intraprocedural reaching-binding flow analysis
+- lexical target and binding-state separation for references
+- class-local then global lookup semantics
 - branch-aware reaching-binding sets
 - sequential redefinition and `del`
 - branch, loop, `try`, and match joins
 - strong and weak binding updates
 - bounded target sets with explicit widening
-- late-bound global and closure target sets
+- late-bound global and free-variable binding states
 - direct assignment aliases
 - runtime, definition-time, type-only, and lazy-annotation classification
 - target-version and `__future__` annotation behavior
@@ -757,9 +799,11 @@ Part 1 findings are limited to:
 - `ContextId`
 - `SymbolId`
 - `BindingId`
+- `BindingSetId`
 - `ReferenceId`
 - lexical scopes
 - ordered bindings
+- lookup semantics
 - reaching-binding sets
 - resolved references
 - unresolved references
@@ -782,8 +826,8 @@ def parse():
 parse()
 ```
 
-The call resolves to the second definition. The first definition remains a distinct overwritten
-binding.
+The call lexically targets `parse`; its binding state contains the second definition. The first
+definition remains a distinct overwritten binding.
 
 Additional fixtures:
 
@@ -812,12 +856,36 @@ Additional fixtures:
 - class-body effects
 - test-only references
 
+### Internal Slices
+
+Part 1A implements:
+
+- typed IDs and deterministic arenas
+- canonical semantic debug schema
+- `ScopeId` and `ContextId`
+- module, function, and class scopes
+- module-body, function-body, and class-body contexts
+- `SymbolId`, `BindingId`, and existing `DefId`
+- ordered binding events
+- repeated-definition behavior
+- assignment replacement behavior
+- deterministic `debug bindings` output
+- snapshot and invariant tests
+
+Part 1A does not implement reference analysis, branch joins, loops, fixed points, widening limits,
+annotation phases, public findings, or `debug references`.
+
+Later Part 1 slices add lexical reference resolution, reaching-binding flow analysis, special scopes
+and phases, definition-effect summaries, removal-risk summaries, overload handling, origin tagging,
+and internal candidate snapshots.
+
 ### Acceptance Criteria
 
 Part 1 is complete when:
 
 1. Scope classification matches CPython oracle fixtures where applicable.
-2. Every load resolves to a precise target set, `External`, or an explicit unresolved reason.
+2. Every load has explicit lexical resolution and binding state: known, maybe-unbound, late-bound,
+   external, ambiguous, unknown, or unresolved.
 3. Same-name definitions are never conflated.
 4. Conditional code produces conservative multiple-target sets.
 5. Annotation references are classified correctly for every supported target version.

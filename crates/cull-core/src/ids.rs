@@ -22,3 +22,9 @@ macro_rules! id_type {
 id_type!(FileId);
 id_type!(ModuleId);
 id_type!(DefId);
+id_type!(ScopeId);
+id_type!(ContextId);
+id_type!(SymbolId);
+id_type!(BindingId);
+id_type!(BindingSetId);
+id_type!(ReferenceId);

@@ -2,7 +2,7 @@ use cull_core::{
     DefId, DefinitionIr, DefinitionKey, DefinitionKind, Diagnostic, ModuleIr, PythonVersion,
     TextRange,
 };
-use ruff_python_ast::{Mod, PythonVersion as RuffPythonVersion, Stmt};
+use ruff_python_ast::{Mod, ModModule, PythonVersion as RuffPythonVersion, Stmt};
 use ruff_python_parser::{parse_unchecked, Mode, ParseOptions};
 use ruff_text_size::TextRange as RuffTextRange;
 
@@ -13,23 +13,7 @@ pub struct RuffFrontend;
 
 impl PythonFrontend for RuffFrontend {
     fn parse_module(&self, input: ParseInput<'_>) -> Result<ParsedModule, Vec<Diagnostic>> {
-        let options = ParseOptions::from(Mode::Module)
-            .with_target_version(to_ruff_version(input.target_python));
-        let parsed = parse_unchecked(&input.source.text, options);
-
-        let mut diagnostics = parser_diagnostics(input.display_path, &parsed);
-        if !diagnostics.is_empty() {
-            return Err(diagnostics);
-        }
-
-        let Mod::Module(module) = parsed.into_syntax() else {
-            return Err(vec![Diagnostic::error(
-                "CULL_P0200",
-                "parser did not return a module",
-            )
-            .with_path(input.display_path.to_owned())]);
-        };
-
+        let module = parse_ruff_module(input)?;
         let future_annotations = has_future_annotations(&module.body);
         let definitions = module
             .body
@@ -42,12 +26,6 @@ impl PythonFrontend for RuffFrontend {
             })
             .collect();
 
-        diagnostics.sort_by(|left, right| {
-            left.code
-                .cmp(&right.code)
-                .then(left.message.cmp(&right.message))
-        });
-
         Ok(ParsedModule {
             module: ModuleIr {
                 id: input.module_id,
@@ -57,9 +35,30 @@ impl PythonFrontend for RuffFrontend {
                 future_annotations,
                 definitions,
             },
-            diagnostics,
+            diagnostics: Vec::new(),
         })
     }
+}
+
+pub(crate) fn parse_ruff_module(input: ParseInput<'_>) -> Result<ModModule, Vec<Diagnostic>> {
+    let options =
+        ParseOptions::from(Mode::Module).with_target_version(to_ruff_version(input.target_python));
+    let parsed = parse_unchecked(&input.source.text, options);
+
+    let diagnostics = parser_diagnostics(input.display_path, &parsed);
+    if !diagnostics.is_empty() {
+        return Err(diagnostics);
+    }
+
+    let Mod::Module(module) = parsed.into_syntax() else {
+        return Err(vec![Diagnostic::error(
+            "CULL_P0200",
+            "parser did not return a module",
+        )
+        .with_path(input.display_path.to_owned())]);
+    };
+
+    Ok(module)
 }
 
 fn parser_diagnostics<T>(path: &str, parsed: &ruff_python_parser::Parsed<T>) -> Vec<Diagnostic> {
@@ -168,11 +167,15 @@ fn has_future_annotations(statements: &[Stmt]) -> bool {
     })
 }
 
-fn to_range(range: RuffTextRange) -> TextRange {
+pub(crate) fn module_has_future_annotations(statements: &[Stmt]) -> bool {
+    has_future_annotations(statements)
+}
+
+pub(crate) fn to_range(range: RuffTextRange) -> TextRange {
     TextRange::new(range.start().to_u32(), range.end().to_u32())
 }
 
-fn definition_statement_range(
+pub(crate) fn definition_statement_range(
     source: &str,
     fallback: TextRange,
     name_range: TextRange,

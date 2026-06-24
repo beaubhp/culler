@@ -2,7 +2,10 @@ use std::{path::PathBuf, process::ExitCode};
 
 use clap::{Parser, Subcommand, ValueEnum};
 use cull_core::PythonVersion;
-use cull_python::{analyze_debug_definitions, DebugDefinitionsOptions};
+use cull_python::{
+    analyze_debug_bindings, analyze_debug_definitions, DebugBindingsOptions,
+    DebugDefinitionsOptions,
+};
 
 #[derive(Debug, Parser)]
 #[command(name = "cull")]
@@ -32,6 +35,15 @@ enum DebugCommand {
         #[arg(long)]
         target_python: Option<PythonVersion>,
     },
+    Bindings {
+        path: PathBuf,
+        #[arg(long = "src")]
+        source_roots: Vec<PathBuf>,
+        #[arg(long, default_value = "json")]
+        format: OutputFormat,
+        #[arg(long)]
+        target_python: Option<PythonVersion>,
+    },
 }
 
 #[derive(Clone, Debug, ValueEnum)]
@@ -53,6 +65,29 @@ fn run() -> Result<(), String> {
     let cli = Cli::parse();
     match cli.command {
         Command::Debug { command } => match command {
+            DebugCommand::Bindings {
+                path,
+                source_roots,
+                format,
+                target_python,
+            } => {
+                let output = analyze_debug_bindings(DebugBindingsOptions {
+                    project_root: path,
+                    source_roots,
+                    target_python,
+                })
+                .map_err(|diagnostic| diagnostic.message)?;
+
+                match format {
+                    OutputFormat::Json => {
+                        println!(
+                            "{}",
+                            serde_json::to_string_pretty(&output)
+                                .map_err(|error| error.to_string())?
+                        );
+                    }
+                }
+            }
             DebugCommand::Definitions {
                 path,
                 source_roots,
