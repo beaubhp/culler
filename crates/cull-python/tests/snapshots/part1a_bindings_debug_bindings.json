@@ -219,73 +219,73 @@
       "id": 2,
       "module": 1,
       "scope": 1,
-      "name": "VALUE"
+      "name": "Parser"
     },
     {
       "id": 3,
       "module": 1,
       "scope": 1,
-      "name": "parse"
+      "name": "VALUE"
     },
     {
       "id": 4,
       "module": 1,
-      "scope": 2,
-      "name": "raw"
+      "scope": 1,
+      "name": "parse"
     },
     {
       "id": 5,
       "module": 1,
       "scope": 2,
-      "name": "strict"
+      "name": "parse"
     },
     {
       "id": 6,
       "module": 1,
       "scope": 2,
-      "name": "result"
+      "name": "raw"
     },
     {
       "id": 7,
       "module": 1,
       "scope": 2,
-      "name": "parse"
+      "name": "result"
     },
     {
       "id": 8,
       "module": 1,
-      "scope": 1,
-      "name": "Parser"
+      "scope": 2,
+      "name": "strict"
     },
     {
       "id": 9,
       "module": 1,
       "scope": 5,
-      "name": "token"
+      "name": "parse"
     },
     {
       "id": 10,
       "module": 1,
       "scope": 5,
-      "name": "parse"
+      "name": "token"
     },
     {
       "id": 11,
       "module": 1,
       "scope": 6,
-      "name": "self"
+      "name": "local"
     },
     {
       "id": 12,
       "module": 1,
       "scope": 6,
-      "name": "value"
+      "name": "self"
     },
     {
       "id": 13,
       "module": 1,
       "scope": 6,
-      "name": "local"
+      "name": "value"
     }
   ],
   "bindings": [
@@ -327,7 +327,7 @@
       "id": 2,
       "module": 1,
       "scope": 1,
-      "symbol": 2,
+      "symbol": 3,
       "kind": "assignment",
       "name": "VALUE",
       "order": 0,
@@ -344,7 +344,7 @@
       "id": 3,
       "module": 1,
       "scope": 1,
-      "symbol": 3,
+      "symbol": 4,
       "kind": "function_definition",
       "name": "parse",
       "order": 1,
@@ -362,7 +362,7 @@
       "id": 4,
       "module": 1,
       "scope": 2,
-      "symbol": 4,
+      "symbol": 6,
       "kind": "parameter",
       "name": "raw",
       "order": 2,
@@ -379,7 +379,7 @@
       "id": 5,
       "module": 1,
       "scope": 2,
-      "symbol": 5,
+      "symbol": 8,
       "kind": "parameter",
       "name": "strict",
       "order": 3,
@@ -396,7 +396,7 @@
       "id": 6,
       "module": 1,
       "scope": 2,
-      "symbol": 6,
+      "symbol": 7,
       "kind": "assignment",
       "name": "result",
       "order": 4,
@@ -413,7 +413,7 @@
       "id": 7,
       "module": 1,
       "scope": 2,
-      "symbol": 7,
+      "symbol": 5,
       "kind": "function_definition",
       "name": "parse",
       "order": 5,
@@ -431,7 +431,7 @@
       "id": 8,
       "module": 1,
       "scope": 1,
-      "symbol": 3,
+      "symbol": 4,
       "kind": "function_definition",
       "name": "parse",
       "order": 6,
@@ -450,7 +450,7 @@
       "id": 9,
       "module": 1,
       "scope": 1,
-      "symbol": 3,
+      "symbol": 4,
       "kind": "assignment",
       "name": "parse",
       "order": 7,
@@ -468,7 +468,7 @@
       "id": 10,
       "module": 1,
       "scope": 1,
-      "symbol": 8,
+      "symbol": 2,
       "kind": "class_definition",
       "name": "Parser",
       "order": 8,
@@ -486,7 +486,7 @@
       "id": 11,
       "module": 1,
       "scope": 5,
-      "symbol": 9,
+      "symbol": 10,
       "kind": "assignment",
       "name": "token",
       "order": 9,
@@ -503,7 +503,7 @@
       "id": 12,
       "module": 1,
       "scope": 5,
-      "symbol": 10,
+      "symbol": 9,
       "kind": "function_definition",
       "name": "parse",
       "order": 10,
@@ -521,7 +521,7 @@
       "id": 13,
       "module": 1,
       "scope": 6,
-      "symbol": 11,
+      "symbol": 12,
       "kind": "parameter",
       "name": "self",
       "order": 11,
@@ -538,7 +538,7 @@
       "id": 14,
       "module": 1,
       "scope": 6,
-      "symbol": 12,
+      "symbol": 13,
       "kind": "parameter",
       "name": "value",
       "order": 12,
@@ -555,7 +555,7 @@
       "id": 15,
       "module": 1,
       "scope": 6,
-      "symbol": 13,
+      "symbol": 11,
       "kind": "assignment",
       "name": "local",
       "order": 13,

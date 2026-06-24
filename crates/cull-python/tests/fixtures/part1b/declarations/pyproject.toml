@@ -1,0 +1,3 @@
+[tool.cull]
+src = "src"
+target-python = "3.14"

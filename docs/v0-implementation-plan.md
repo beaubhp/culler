@@ -188,31 +188,74 @@ The lexical target and runtime binding state are intentionally separate.
 ```rust
 enum LookupSemantics {
     Direct,
-    ClassLocalThenGlobal {
-        global_fallback: Resolution<SymbolId>,
+    GlobalThenBuiltin {
+        global_symbol: SymbolId,
+    },
+    ClassLocalThenGlobalThenBuiltin {
+        class_symbol: SymbolId,
+        global_symbol: SymbolId,
     },
 }
 
-enum ReachingBindings {
+enum ReferenceBindingState {
     NotApplicable,
-    Known(BindingSetId),
-    MaybeUnbound(BindingSetId),
-    LateBound(LateBindingKind),
-    Unknown(UnknownReason),
+    Analyzed(BindingState),
+    NotAnalyzed(FlowFailureReason),
 }
 
-enum LateBindingKind {
-    Global,
-    FreeVariable,
+struct BindingState {
+    reachability: LocalReachability,
+    bindings: BindingSetId,
+    residual: ResidualLookup,
+    uncertainty: FlowUncertaintySetId,
+}
+
+enum LocalReachability {
+    MayExecute,
+    Unreachable,
+}
+
+enum ResidualLookup {
+    None,
+    UnboundLocal,
+    RuntimeGlobalThenBuiltin,
+    RuntimeFreeVariable,
+    BuiltinOrNameError,
+}
+
+enum ContextFlowStatus {
+    Complete,
+    Unsupported(FlowFailureReason),
+}
+
+enum CompletionKind {
+    Normal,
+    Return,
+    Raise,
+    Break(LoopId),
+    Continue(LoopId),
 }
 ```
 
-`LateBound(Global)` and `LateBound(FreeVariable)` represent lookups that cannot be reduced to the
-binding visible when the function was created. Class body fallback is modeled through
-`LookupSemantics::ClassLocalThenGlobal`, because a class body first checks the class-local namespace
-and then falls back to the module global namespace when that local name is unbound.
+`GlobalThenBuiltin` points to a real module `SymbolId` even when that symbol has no bindings yet.
+`SymbolId` represents a lookup slot, not proof that a value is currently assigned.
 
-Unresolved, ambiguous, late-bound, or unknown analysis never silently becomes an unused finding.
+`RuntimeGlobalThenBuiltin` and `RuntimeFreeVariable` preserve runtime lookup residuals independently
+from concrete project `BindingId` candidates. Class body fallback is modeled through
+`LookupSemantics::ClassLocalThenGlobalThenBuiltin`, because a class body first checks the class-local
+namespace, then the module global namespace, then builtins.
+
+Binding sets remain exact. Cull must not truncate candidates and add uncertainty, because an omitted
+`BindingId` could later be treated as unreferenced. If an execution context exceeds analysis
+resources, Cull marks that context `Unsupported`, sets affected references to `NotAnalyzed`, records
+which budget was exceeded, and fails closed for later candidates or findings that depend on that
+context.
+
+`MayExecute` means the reference may execute on at least one modeled local path. It does not mean
+the reference executes on every path.
+
+Unresolved, ambiguous, residual runtime lookup, unbound behavior, uncertainty, or unsupported flow
+analysis never silently becomes an unused finding.
 
 Example:
 
@@ -251,15 +294,22 @@ Lexical resolution uses the completed block information to resolve each name use
 `External`, or an explicit unresolved state.
 
 The two-pass binder refers to scope collection and lexical resolution. Branches, loops, `try`,
-`match`, deletion, and widening belong to a separate intraprocedural flow engine.
+`match`, deletion, exact binding sets, and resource-budget fail-closed behavior belong to a separate
+intraprocedural flow engine.
 
 Reaching-binding analysis must:
 
 - preserve binding order
 - preserve redefinition behavior
-- compute known, maybe-unbound, late-bound, or unknown binding states
+- compute conservative intraprocedural lookup states for references already resolved lexically
+- preserve exact concrete project `BindingId` candidates
+- record residual runtime lookup or unbound behavior separately from concrete candidates
+- record local may-execution separately from lookup result
+- record flow uncertainty without erasing known concrete candidates
 - use conservative branch-aware reaching-binding sets
-- widen to an explicit unknown state when target sets exceed a documented limit
+- mark a context unsupported and fail closed if exact analysis exceeds resource budgets
+- preserve abrupt completion kinds from the initial CFG model: normal, return, raise, break, and
+  continue
 
 ### Scopes and Execution Contexts
 
@@ -285,6 +335,25 @@ Minimum execution contexts:
 Class scopes do not enclose method bodies. Annotation contexts may have special access to enclosing
 class namespaces depending on target Python semantics.
 
+`source_context` identifies where the referenced expression executes, not the AST node or definition
+that syntactically contains it. Syntactic provenance can be added separately later if needed; it must
+not change resolution semantics.
+
+Execution-context ownership:
+
+| Expression | `source_context` |
+|---|---|
+| function decorators and defaults | Enclosing context. |
+| class decorators, bases, and keywords | Enclosing context. |
+| function and lambda bodies | Their body context. |
+| class suite statements | Class-body context. |
+| leftmost comprehension iterable | Enclosing context. |
+| remaining comprehension expressions | Comprehension context. |
+| annotations | Deferred to Part 1D. |
+
+Cull keeps semantic comprehension scopes even on Python versions where CPython inlines
+comprehensions. Runtime frame allocation is not the same as lexical variable isolation.
+
 ### Reference Facts
 
 References should carry orthogonal facts instead of relying on one expanding edge enum.
@@ -293,10 +362,14 @@ Each reference records:
 
 ```rust
 struct ReferenceFact {
+    id: ReferenceId,
+    source_scope: ScopeId,
     source_context: ContextId,
+    source_spelling: String,
+    semantic_name: String,
     lexical_target: Resolution<SymbolId>,
     lookup: LookupSemantics,
-    binding_state: ReachingBindings,
+    binding_state: ReferenceBindingState,
     phase: ReferencePhase,
     role: ReferenceRole,
     origin_domain: OriginDomain,
@@ -771,8 +844,8 @@ Part 1 findings are limited to:
 - sequential redefinition and `del`
 - branch, loop, `try`, and match joins
 - strong and weak binding updates
-- bounded target sets with explicit widening
-- late-bound global and free-variable binding states
+- exact binding sets with context-level resource budgets
+- residual runtime global and free-variable lookup states
 - direct assignment aliases
 - runtime, definition-time, type-only, and lazy-annotation classification
 - target-version and `__future__` annotation behavior
@@ -842,7 +915,7 @@ Additional fixtures:
 - assignment expressions
 - conditional definitions
 - conditional imports
-- target-set widening under repeated conditional rebinding
+- repeated conditional rebinding with exact candidate sets
 - `try` and `except` joins
 - match capture bindings
 - exception target cleanup
@@ -872,20 +945,81 @@ Part 1A implements:
 - deterministic `debug bindings` output
 - snapshot and invariant tests
 
-Part 1A does not implement reference analysis, branch joins, loops, fixed points, widening limits,
-annotation phases, public findings, or `debug references`.
+Part 1A does not implement reference analysis, branch joins, loops, fixed points, flow resource
+budgets, annotation phases, public findings, or `debug references`.
 
 Later Part 1 slices add lexical reference resolution, reaching-binding flow analysis, special scopes
 and phases, definition-effect summaries, removal-risk summaries, overload handling, origin tagging,
 and internal candidate snapshots.
+
+Part 1B implements lexical resolution only:
+
+- canonical `ReferenceFact`
+- supported bare-name loads resolved to lexical `SymbolId`s
+- source spelling and mangled semantic spelling preserved
+- whole-block declaration collection
+- `global` and `nonlocal` validation
+- `GlobalThenBuiltin`
+- class-local, then global, then builtin fallback
+- semantic comprehension scopes
+- true execution-context ownership for references
+- deterministic `debug references` output
+- matching-version CPython `symtable` comparisons when available
+- `binding_state: NotApplicable` for every reference
+
+Part 1B does not implement reaching `BindingId` sets, branch joins, loops, fixed points,
+unbound or residual flow conclusions, deletion flow, annotation semantics, dead-code candidates, or
+findings.
+
+Part 1C implements conservative intraprocedural flow states for references already resolved by Part
+1B:
+
+- `ReferenceBindingState::Analyzed(BindingState)` and `NotAnalyzed(FlowFailureReason)`
+- exact `BindingSetId` candidates with no unsafe truncation
+- `ContextFlowStatus::Complete` or `Unsupported(FlowFailureReason)`
+- local `MayExecute` versus `Unreachable` reference reachability
+- residual runtime lookup or unbound behavior independent from concrete binding candidates
+- flow uncertainty sets that do not erase known concrete candidates
+- resource-budget fail-closed behavior at the execution-context level
+- CFG completion kinds for normal, return, raise, break, and continue exits
+- straight-line flow, definition binding order, `del`, and local unreachable references
+- conditional, loop, exceptional, and pattern-matching flow in the 1C sequence below
+
+Part 1C does not alter lexical targets, resolve cross-module imports, model annotations, emit
+findings, or infer project-root reachability.
+
+Part 1C is implemented in internal slices:
+
+- **Part 1C-A: Flow foundation.** Product-state/lattice model, exact binding-set interning, context
+  flow status, local may-execution, CFG skeleton with abrupt completion kinds, context-entry states,
+  straight-line updates, parameter bindings, assignment evaluation order, redefinitions, `del`,
+  function/class definition binding order, and return/raise termination.
+- **Part 1C-B: Conditional expression and statement flow.** `if`, boolean short-circuiting,
+  conditional expressions, assignment expressions outside deferred cases, branch joins, and
+  concrete-plus-residual combinations.
+- **Part 1C-C: Iteration and deferred execution.** `for`, `while`, zero-iteration paths, fixed
+  points, `break`, `continue`, loop `else`, eager comprehensions, generator expressions, `yield`
+  and `await` barriers, and resource-budget instrumentation.
+- **Part 1C-D: Structured exceptional flow.** `try`, `except`, `else`, `finally`, exception-target
+  deletion, `with`, `async with`, `match`, guards, failed partial-match uncertainty, and conservative
+  exceptional states.
+- **Part 1C-E: Hardening.** Deterministic debug JSON, uncertainty serialization, budget
+  instrumentation, invariant tests, snapshots, fuzzing, and an implementation note.
+
+Part 1C is complete when every supported non-annotation reference has a deterministic conservative
+flow result. Successfully analyzed results preserve exact concrete candidates, model fallback and
+runtime residuals explicitly, mark locally unreachable references, and retain uncertainty without
+manufacturing precision across branches, loops, suspension, exceptions, pattern matching, or dynamic
+namespace effects. Unsupported contexts are explicit and fail closed. No public findings are
+emitted.
 
 ### Acceptance Criteria
 
 Part 1 is complete when:
 
 1. Scope classification matches CPython oracle fixtures where applicable.
-2. Every load has explicit lexical resolution and binding state: known, maybe-unbound, late-bound,
-   external, ambiguous, unknown, or unresolved.
+2. Every supported load has explicit lexical resolution and an analyzed or explicitly not-analyzed
+   binding state.
 3. Same-name definitions are never conflated.
 4. Conditional code produces conservative multiple-target sets.
 5. Annotation references are classified correctly for every supported target version.
@@ -1368,7 +1502,7 @@ Keep decision records in this document for v0.
 | Benchmark release gate | Fixed. |
 | Non-UTF-8 codec support | Fixed: UTF-8, UTF-8 BOM, ASCII, Latin-1, and ISO-8859-1 labels. |
 | Product Python version matrix | Fixed: Python 3.10 through 3.14 for v0. |
-| Reaching-binding widening limit | Open until Part 1. |
+| Flow-analysis resource budgets | Internal and benchmark-driven; exceeding a context budget fails closed. |
 | Exact benchmark numeric thresholds | Open until Part 5 setup. |
 
 ## Change Control

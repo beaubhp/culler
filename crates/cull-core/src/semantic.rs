@@ -3,7 +3,8 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    BindingId, ContextId, DefId, DefinitionKind, FileId, ModuleId, ScopeId, SymbolId, TextRange,
+    BindingId, BindingSetId, ContextId, DefId, DefinitionKind, FileId, FlowUncertaintySetId,
+    LoopId, ModuleId, ReferenceId, ScopeId, SymbolId, TextRange,
 };
 
 #[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
@@ -13,7 +14,11 @@ pub struct SemanticGraph {
     pub contexts: Vec<ContextFact>,
     pub symbols: Vec<SymbolFact>,
     pub bindings: Vec<BindingFact>,
+    pub binding_sets: Vec<BindingSetFact>,
+    pub flow_uncertainty_sets: Vec<FlowUncertaintySetFact>,
     pub definitions: Vec<SemanticDefinition>,
+    pub references: Vec<ReferenceFact>,
+    pub context_flow_statuses: Vec<ContextFlowStatusFact>,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -41,12 +46,14 @@ pub struct ScopeFact {
     pub range: TextRange,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ScopeKind {
     Module,
     Function,
     Class,
+    Lambda,
+    Comprehension,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -68,6 +75,8 @@ pub enum ContextKind {
     ModuleBody,
     FunctionBody,
     ClassBody,
+    LambdaBody,
+    ComprehensionBody,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -95,7 +104,13 @@ pub struct BindingFact {
     pub replaces: Option<BindingId>,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct BindingSetFact {
+    pub id: BindingSetId,
+    pub bindings: Vec<BindingId>,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BindingKind {
     Parameter,
@@ -112,6 +127,7 @@ pub enum BindingKind {
     WithTarget,
     ExceptTarget,
     MatchCapture,
+    NamedExpression,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -130,10 +146,178 @@ pub struct SemanticDefinition {
     pub is_async: bool,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct ReferenceFact {
+    pub id: ReferenceId,
+    pub module: ModuleId,
+    pub source_scope: ScopeId,
+    pub source_context: ContextId,
+    pub source_spelling: String,
+    pub semantic_name: String,
+    pub lexical_target: Resolution<SymbolId>,
+    pub lookup: LookupSemantics,
+    pub binding_state: ReferenceBindingState,
+    pub phase: ReferencePhase,
+    pub role: ReferenceRole,
+    pub origin_domain: OriginDomain,
+    pub span: TextRange,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case", tag = "state", content = "value")]
+pub enum Resolution<T> {
+    Resolved(T),
+    Ambiguous(Vec<T>),
+    External,
+    Unresolved(UnresolvedReason),
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case", tag = "kind", content = "detail")]
+pub enum UnresolvedReason {
+    UnsupportedSyntax,
+    InvalidGlobalDeclaration,
+    InvalidNonlocalDeclaration,
+    MissingNonlocalBinding,
+    ConflictingDeclaration,
+    DeferredAnnotation,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case", tag = "kind")]
+pub enum LookupSemantics {
+    Direct,
+    GlobalThenBuiltin {
+        global_symbol: SymbolId,
+    },
+    ClassLocalThenGlobalThenBuiltin {
+        class_symbol: SymbolId,
+        global_symbol: SymbolId,
+    },
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case", tag = "state", content = "value")]
+pub enum ReferenceBindingState {
+    NotApplicable,
+    Analyzed(BindingState),
+    NotAnalyzed(FlowFailureReason),
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct BindingState {
+    pub reachability: LocalReachability,
+    pub bindings: BindingSetId,
+    pub residual: ResidualLookup,
+    pub uncertainty: FlowUncertaintySetId,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum LocalReachability {
+    MayExecute,
+    Unreachable,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ResidualLookup {
+    None,
+    UnboundLocal,
+    RuntimeGlobalThenBuiltin,
+    RuntimeFreeVariable,
+    BuiltinOrNameError,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct FlowUncertaintySetFact {
+    pub id: FlowUncertaintySetId,
+    pub uncertainties: Vec<FlowUncertaintyKind>,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum FlowUncertaintyKind {
+    OpaqueCallMayMutateGlobal,
+    OpaqueCallMayMutateClosure,
+    DynamicNamespaceMutation,
+    SuspensionPoint,
+    ComplexExceptionFlow,
+    FailedPartialMatch,
+    UnsupportedFlow,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct ContextFlowStatusFact {
+    pub context: ContextId,
+    pub status: ContextFlowStatus,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case", tag = "status", content = "reason")]
+pub enum ContextFlowStatus {
+    Complete,
+    Unsupported(FlowFailureReason),
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case", tag = "kind", content = "detail")]
+pub enum FlowFailureReason {
+    ResourceBudgetExceeded(FlowResourceBudget),
+    UnsupportedFlow,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum FlowResourceBudget {
+    BlockCount,
+    WorklistIterations,
+    StoredFlowFacts,
+    BindingSetMemory,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case", tag = "kind", content = "loop_id")]
+pub enum CompletionKind {
+    Normal,
+    Return,
+    Raise,
+    Break(LoopId),
+    Continue(LoopId),
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ReferencePhase {
+    DefinitionTime,
+    BodyRuntime,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ReferenceRole {
+    Value,
+    Decorator,
+    DefaultValue,
+    BaseClass,
+    ClassKeyword,
+    ComprehensionIterable,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum OriginDomain {
+    Production,
+    Test,
+    Unknown,
+}
+
 #[derive(Debug, Default)]
 pub struct SemanticGraphBuilder {
     graph: SemanticGraph,
     symbols_by_scope_name: BTreeMap<(ScopeId, String), SymbolId>,
+    binding_sets_by_bindings: BTreeMap<Vec<BindingId>, BindingSetId>,
+    flow_uncertainty_sets_by_kinds: BTreeMap<Vec<FlowUncertaintyKind>, FlowUncertaintySetId>,
     last_binding_by_symbol: BTreeMap<SymbolId, BindingId>,
     next_binding_order_by_module: BTreeMap<ModuleId, u32>,
 }
@@ -145,6 +329,10 @@ impl SemanticGraphBuilder {
 
     pub fn finish(self) -> SemanticGraph {
         self.graph
+    }
+
+    pub fn graph(&self) -> &SemanticGraph {
+        &self.graph
     }
 
     pub fn add_scope_with_context(&mut self, input: ScopeContextInput) -> (ScopeId, ContextId) {
@@ -170,6 +358,12 @@ impl SemanticGraphBuilder {
             owner_definition: input.owner_definition,
             range: input.range,
         });
+        self.graph
+            .context_flow_statuses
+            .push(ContextFlowStatusFact {
+                context,
+                status: ContextFlowStatus::Complete,
+            });
 
         (scope, context)
     }
@@ -246,6 +440,90 @@ impl SemanticGraphBuilder {
         id
     }
 
+    pub fn add_reference(&mut self, input: ReferenceInput) -> ReferenceId {
+        let id = ReferenceId::new(self.graph.references.len() as u32);
+        self.graph.references.push(ReferenceFact {
+            id,
+            module: input.module,
+            source_scope: input.source_scope,
+            source_context: input.source_context,
+            source_spelling: input.source_spelling,
+            semantic_name: input.semantic_name,
+            lexical_target: input.lexical_target,
+            lookup: input.lookup,
+            binding_state: input.binding_state,
+            phase: input.phase,
+            role: input.role,
+            origin_domain: input.origin_domain,
+            span: input.span,
+        });
+        id
+    }
+
+    pub fn intern_binding_set<I>(&mut self, bindings: I) -> BindingSetId
+    where
+        I: IntoIterator<Item = BindingId>,
+    {
+        let mut bindings = bindings.into_iter().collect::<Vec<_>>();
+        bindings.sort();
+        bindings.dedup();
+
+        if let Some(id) = self.binding_sets_by_bindings.get(&bindings) {
+            return *id;
+        }
+
+        let id = BindingSetId::new(self.graph.binding_sets.len() as u32);
+        self.graph.binding_sets.push(BindingSetFact {
+            id,
+            bindings: bindings.clone(),
+        });
+        self.binding_sets_by_bindings.insert(bindings, id);
+        id
+    }
+
+    pub fn intern_flow_uncertainty_set<I>(&mut self, uncertainties: I) -> FlowUncertaintySetId
+    where
+        I: IntoIterator<Item = FlowUncertaintyKind>,
+    {
+        let mut uncertainties = uncertainties.into_iter().collect::<Vec<_>>();
+        uncertainties.sort();
+        uncertainties.dedup();
+
+        if let Some(id) = self.flow_uncertainty_sets_by_kinds.get(&uncertainties) {
+            return *id;
+        }
+
+        let id = FlowUncertaintySetId::new(self.graph.flow_uncertainty_sets.len() as u32);
+        self.graph
+            .flow_uncertainty_sets
+            .push(FlowUncertaintySetFact {
+                id,
+                uncertainties: uncertainties.clone(),
+            });
+        self.flow_uncertainty_sets_by_kinds
+            .insert(uncertainties, id);
+        id
+    }
+
+    pub fn set_reference_binding_state(
+        &mut self,
+        reference: ReferenceId,
+        binding_state: ReferenceBindingState,
+    ) {
+        self.reference_mut(reference).binding_state = binding_state;
+    }
+
+    pub fn set_context_flow_status(&mut self, context: ContextId, status: ContextFlowStatus) {
+        if let Some(fact) = self
+            .graph
+            .context_flow_statuses
+            .iter_mut()
+            .find(|fact| fact.context == context)
+        {
+            fact.status = status;
+        }
+    }
+
     fn binding_mut(&mut self, id: BindingId) -> &mut BindingFact {
         &mut self.graph.bindings[id.as_u32() as usize]
     }
@@ -256,6 +534,10 @@ impl SemanticGraphBuilder {
 
     fn context_mut(&mut self, id: ContextId) -> &mut ContextFact {
         &mut self.graph.contexts[id.as_u32() as usize]
+    }
+
+    fn reference_mut(&mut self, id: ReferenceId) -> &mut ReferenceFact {
+        &mut self.graph.references[id.as_u32() as usize]
     }
 }
 
@@ -295,4 +577,20 @@ pub struct DefinitionInput {
     pub name_range: TextRange,
     pub reportable: bool,
     pub is_async: bool,
+}
+
+#[derive(Clone, Debug)]
+pub struct ReferenceInput {
+    pub module: ModuleId,
+    pub source_scope: ScopeId,
+    pub source_context: ContextId,
+    pub source_spelling: String,
+    pub semantic_name: String,
+    pub lexical_target: Resolution<SymbolId>,
+    pub lookup: LookupSemantics,
+    pub binding_state: ReferenceBindingState,
+    pub phase: ReferencePhase,
+    pub role: ReferenceRole,
+    pub origin_domain: OriginDomain,
+    pub span: TextRange,
 }

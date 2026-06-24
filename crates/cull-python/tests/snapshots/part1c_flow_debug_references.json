@@ -1,0 +1,3534 @@
+{
+  "schema_version": 1,
+  "target_python": {
+    "major": 3,
+    "minor": 14
+  },
+  "project_root": "<PROJECT_ROOT>",
+  "source_roots": [
+    {
+      "path": "src",
+      "kind": "tool-cull"
+    }
+  ],
+  "modules": [
+    {
+      "id": 0,
+      "file": 0,
+      "name": "pkg",
+      "path": "src/pkg/__init__.py",
+      "future_annotations": false,
+      "scope": 0,
+      "context": 0
+    },
+    {
+      "id": 1,
+      "file": 1,
+      "name": "pkg.flow",
+      "path": "src/pkg/flow.py",
+      "future_annotations": false,
+      "scope": 1,
+      "context": 1
+    }
+  ],
+  "scopes": [
+    {
+      "id": 0,
+      "module": 0,
+      "kind": "module",
+      "context": 0,
+      "name": "pkg",
+      "range": {
+        "start": 0,
+        "end": 1
+      }
+    },
+    {
+      "id": 1,
+      "module": 1,
+      "kind": "module",
+      "context": 1,
+      "name": "pkg.flow",
+      "range": {
+        "start": 0,
+        "end": 1690
+      }
+    },
+    {
+      "id": 2,
+      "module": 1,
+      "kind": "function",
+      "parent": 1,
+      "context": 2,
+      "owner_definition": 0,
+      "name": "pkg.flow::sequential",
+      "range": {
+        "start": 138,
+        "end": 250
+      }
+    },
+    {
+      "id": 3,
+      "module": 1,
+      "kind": "function",
+      "parent": 1,
+      "context": 3,
+      "owner_definition": 1,
+      "name": "pkg.flow::branches",
+      "range": {
+        "start": 253,
+        "end": 445
+      }
+    },
+    {
+      "id": 4,
+      "module": 1,
+      "kind": "function",
+      "parent": 1,
+      "context": 4,
+      "owner_definition": 2,
+      "name": "pkg.flow::deletion",
+      "range": {
+        "start": 448,
+        "end": 538
+      }
+    },
+    {
+      "id": 5,
+      "module": 1,
+      "kind": "function",
+      "parent": 1,
+      "context": 5,
+      "owner_definition": 3,
+      "name": "pkg.flow::unreachable",
+      "range": {
+        "start": 541,
+        "end": 603
+      }
+    },
+    {
+      "id": 6,
+      "module": 1,
+      "kind": "function",
+      "parent": 1,
+      "context": 6,
+      "owner_definition": 4,
+      "name": "pkg.flow::global_flow",
+      "range": {
+        "start": 606,
+        "end": 759
+      }
+    },
+    {
+      "id": 7,
+      "module": 1,
+      "kind": "function",
+      "parent": 1,
+      "context": 7,
+      "owner_definition": 5,
+      "name": "pkg.flow::conditional_global",
+      "range": {
+        "start": 762,
+        "end": 891
+      }
+    },
+    {
+      "id": 8,
+      "module": 1,
+      "kind": "function",
+      "parent": 1,
+      "context": 8,
+      "owner_definition": 6,
+      "name": "pkg.flow::outer_nonlocal",
+      "range": {
+        "start": 894,
+        "end": 1083
+      }
+    },
+    {
+      "id": 9,
+      "module": 1,
+      "kind": "function",
+      "parent": 8,
+      "context": 9,
+      "owner_definition": 7,
+      "name": "pkg.flow::outer_nonlocal.inner",
+      "range": {
+        "start": 945,
+        "end": 1065
+      }
+    },
+    {
+      "id": 10,
+      "module": 1,
+      "kind": "function",
+      "parent": 1,
+      "context": 10,
+      "owner_definition": 8,
+      "name": "pkg.flow::exception_flow",
+      "range": {
+        "start": 1086,
+        "end": 1283
+      }
+    },
+    {
+      "id": 11,
+      "module": 1,
+      "kind": "function",
+      "parent": 1,
+      "context": 11,
+      "owner_definition": 9,
+      "name": "pkg.flow::match_flow",
+      "range": {
+        "start": 1286,
+        "end": 1454
+      }
+    },
+    {
+      "id": 12,
+      "module": 1,
+      "kind": "class",
+      "parent": 1,
+      "context": 12,
+      "owner_definition": 10,
+      "name": "pkg.flow::ClassFlow",
+      "range": {
+        "start": 1457,
+        "end": 1587
+      }
+    },
+    {
+      "id": 13,
+      "module": 1,
+      "kind": "comprehension",
+      "parent": 1,
+      "context": 13,
+      "name": "pkg.flow::<comp@1605>",
+      "range": {
+        "start": 1605,
+        "end": 1637
+      }
+    },
+    {
+      "id": 14,
+      "module": 1,
+      "kind": "comprehension",
+      "parent": 1,
+      "context": 14,
+      "name": "pkg.flow::<comp@1657>",
+      "range": {
+        "start": 1657,
+        "end": 1689
+      }
+    }
+  ],
+  "contexts": [
+    {
+      "id": 0,
+      "module": 0,
+      "kind": "module_body",
+      "scope": 0,
+      "range": {
+        "start": 0,
+        "end": 1
+      }
+    },
+    {
+      "id": 1,
+      "module": 1,
+      "kind": "module_body",
+      "scope": 1,
+      "range": {
+        "start": 0,
+        "end": 1690
+      }
+    },
+    {
+      "id": 2,
+      "module": 1,
+      "kind": "function_body",
+      "scope": 2,
+      "parent": 1,
+      "owner_definition": 0,
+      "range": {
+        "start": 138,
+        "end": 250
+      }
+    },
+    {
+      "id": 3,
+      "module": 1,
+      "kind": "function_body",
+      "scope": 3,
+      "parent": 1,
+      "owner_definition": 1,
+      "range": {
+        "start": 253,
+        "end": 445
+      }
+    },
+    {
+      "id": 4,
+      "module": 1,
+      "kind": "function_body",
+      "scope": 4,
+      "parent": 1,
+      "owner_definition": 2,
+      "range": {
+        "start": 448,
+        "end": 538
+      }
+    },
+    {
+      "id": 5,
+      "module": 1,
+      "kind": "function_body",
+      "scope": 5,
+      "parent": 1,
+      "owner_definition": 3,
+      "range": {
+        "start": 541,
+        "end": 603
+      }
+    },
+    {
+      "id": 6,
+      "module": 1,
+      "kind": "function_body",
+      "scope": 6,
+      "parent": 1,
+      "owner_definition": 4,
+      "range": {
+        "start": 606,
+        "end": 759
+      }
+    },
+    {
+      "id": 7,
+      "module": 1,
+      "kind": "function_body",
+      "scope": 7,
+      "parent": 1,
+      "owner_definition": 5,
+      "range": {
+        "start": 762,
+        "end": 891
+      }
+    },
+    {
+      "id": 8,
+      "module": 1,
+      "kind": "function_body",
+      "scope": 8,
+      "parent": 1,
+      "owner_definition": 6,
+      "range": {
+        "start": 894,
+        "end": 1083
+      }
+    },
+    {
+      "id": 9,
+      "module": 1,
+      "kind": "function_body",
+      "scope": 9,
+      "parent": 8,
+      "owner_definition": 7,
+      "range": {
+        "start": 945,
+        "end": 1065
+      }
+    },
+    {
+      "id": 10,
+      "module": 1,
+      "kind": "function_body",
+      "scope": 10,
+      "parent": 1,
+      "owner_definition": 8,
+      "range": {
+        "start": 1086,
+        "end": 1283
+      }
+    },
+    {
+      "id": 11,
+      "module": 1,
+      "kind": "function_body",
+      "scope": 11,
+      "parent": 1,
+      "owner_definition": 9,
+      "range": {
+        "start": 1286,
+        "end": 1454
+      }
+    },
+    {
+      "id": 12,
+      "module": 1,
+      "kind": "class_body",
+      "scope": 12,
+      "parent": 1,
+      "owner_definition": 10,
+      "range": {
+        "start": 1457,
+        "end": 1587
+      }
+    },
+    {
+      "id": 13,
+      "module": 1,
+      "kind": "comprehension_body",
+      "scope": 13,
+      "parent": 1,
+      "range": {
+        "start": 1605,
+        "end": 1637
+      }
+    },
+    {
+      "id": 14,
+      "module": 1,
+      "kind": "comprehension_body",
+      "scope": 14,
+      "parent": 1,
+      "range": {
+        "start": 1657,
+        "end": 1689
+      }
+    }
+  ],
+  "symbols": [
+    {
+      "id": 0,
+      "module": 1,
+      "scope": 1,
+      "name": "ClassFlow"
+    },
+    {
+      "id": 1,
+      "module": 1,
+      "scope": 1,
+      "name": "branches"
+    },
+    {
+      "id": 2,
+      "module": 1,
+      "scope": 1,
+      "name": "conditional_global"
+    },
+    {
+      "id": 3,
+      "module": 1,
+      "scope": 1,
+      "name": "deletion"
+    },
+    {
+      "id": 4,
+      "module": 1,
+      "scope": 1,
+      "name": "eager_source"
+    },
+    {
+      "id": 5,
+      "module": 1,
+      "scope": 1,
+      "name": "eager_values"
+    },
+    {
+      "id": 6,
+      "module": 1,
+      "scope": 1,
+      "name": "exception_flow"
+    },
+    {
+      "id": 7,
+      "module": 1,
+      "scope": 1,
+      "name": "generator_values"
+    },
+    {
+      "id": 8,
+      "module": 1,
+      "scope": 1,
+      "name": "global_flow"
+    },
+    {
+      "id": 9,
+      "module": 1,
+      "scope": 1,
+      "name": "global_slot"
+    },
+    {
+      "id": 10,
+      "module": 1,
+      "scope": 1,
+      "name": "items"
+    },
+    {
+      "id": 11,
+      "module": 1,
+      "scope": 1,
+      "name": "match_flow"
+    },
+    {
+      "id": 12,
+      "module": 1,
+      "scope": 1,
+      "name": "module_fallback"
+    },
+    {
+      "id": 13,
+      "module": 1,
+      "scope": 1,
+      "name": "module_partial"
+    },
+    {
+      "id": 14,
+      "module": 1,
+      "scope": 1,
+      "name": "outer_nonlocal"
+    },
+    {
+      "id": 15,
+      "module": 1,
+      "scope": 1,
+      "name": "sequential"
+    },
+    {
+      "id": 16,
+      "module": 1,
+      "scope": 1,
+      "name": "unreachable"
+    },
+    {
+      "id": 17,
+      "module": 1,
+      "scope": 1,
+      "name": "cond"
+    },
+    {
+      "id": 18,
+      "module": 1,
+      "scope": 1,
+      "name": "use_module_partial"
+    },
+    {
+      "id": 19,
+      "module": 1,
+      "scope": 2,
+      "name": "seq_value"
+    },
+    {
+      "id": 20,
+      "module": 1,
+      "scope": 1,
+      "name": "use_seq_first"
+    },
+    {
+      "id": 21,
+      "module": 1,
+      "scope": 1,
+      "name": "use_seq_second"
+    },
+    {
+      "id": 22,
+      "module": 1,
+      "scope": 3,
+      "name": "branch_value"
+    },
+    {
+      "id": 23,
+      "module": 1,
+      "scope": 3,
+      "name": "flag"
+    },
+    {
+      "id": 24,
+      "module": 1,
+      "scope": 3,
+      "name": "partial_value"
+    },
+    {
+      "id": 25,
+      "module": 1,
+      "scope": 1,
+      "name": "use_branch"
+    },
+    {
+      "id": 26,
+      "module": 1,
+      "scope": 1,
+      "name": "use_partial"
+    },
+    {
+      "id": 27,
+      "module": 1,
+      "scope": 4,
+      "name": "deleted_value"
+    },
+    {
+      "id": 28,
+      "module": 1,
+      "scope": 1,
+      "name": "use_deleted"
+    },
+    {
+      "id": 29,
+      "module": 1,
+      "scope": 1,
+      "name": "use_unreachable"
+    },
+    {
+      "id": 30,
+      "module": 1,
+      "scope": 1,
+      "name": "use_global_known"
+    },
+    {
+      "id": 31,
+      "module": 1,
+      "scope": 1,
+      "name": "maybe_mutate"
+    },
+    {
+      "id": 32,
+      "module": 1,
+      "scope": 1,
+      "name": "use_global_after_call"
+    },
+    {
+      "id": 33,
+      "module": 1,
+      "scope": 7,
+      "name": "flag"
+    },
+    {
+      "id": 34,
+      "module": 1,
+      "scope": 1,
+      "name": "use_conditional_global"
+    },
+    {
+      "id": 35,
+      "module": 1,
+      "scope": 8,
+      "name": "flag"
+    },
+    {
+      "id": 36,
+      "module": 1,
+      "scope": 8,
+      "name": "inner"
+    },
+    {
+      "id": 37,
+      "module": 1,
+      "scope": 8,
+      "name": "outer_value"
+    },
+    {
+      "id": 38,
+      "module": 1,
+      "scope": 1,
+      "name": "use_nonlocal"
+    },
+    {
+      "id": 39,
+      "module": 1,
+      "scope": 10,
+      "name": "exc_value"
+    },
+    {
+      "id": 40,
+      "module": 1,
+      "scope": 10,
+      "name": "try_value"
+    },
+    {
+      "id": 41,
+      "module": 1,
+      "scope": 1,
+      "name": "maybe_raise"
+    },
+    {
+      "id": 42,
+      "module": 1,
+      "scope": 1,
+      "name": "Error"
+    },
+    {
+      "id": 43,
+      "module": 1,
+      "scope": 1,
+      "name": "use_exc_inside"
+    },
+    {
+      "id": 44,
+      "module": 1,
+      "scope": 1,
+      "name": "use_exc_after"
+    },
+    {
+      "id": 45,
+      "module": 1,
+      "scope": 1,
+      "name": "use_try_value"
+    },
+    {
+      "id": 46,
+      "module": 1,
+      "scope": 11,
+      "name": "captured_value"
+    },
+    {
+      "id": 47,
+      "module": 1,
+      "scope": 11,
+      "name": "subject"
+    },
+    {
+      "id": 48,
+      "module": 1,
+      "scope": 1,
+      "name": "use_captured_inside"
+    },
+    {
+      "id": 49,
+      "module": 1,
+      "scope": 1,
+      "name": "use_captured_after"
+    },
+    {
+      "id": 50,
+      "module": 1,
+      "scope": 12,
+      "name": "maybe_class"
+    },
+    {
+      "id": 51,
+      "module": 1,
+      "scope": 12,
+      "name": "cond"
+    },
+    {
+      "id": 52,
+      "module": 1,
+      "scope": 12,
+      "name": "use_class_fallback"
+    },
+    {
+      "id": 53,
+      "module": 1,
+      "scope": 1,
+      "name": "use_class_fallback"
+    },
+    {
+      "id": 54,
+      "module": 1,
+      "scope": 1,
+      "name": "maybe_class"
+    },
+    {
+      "id": 55,
+      "module": 1,
+      "scope": 12,
+      "name": "use_global_fallback"
+    },
+    {
+      "id": 56,
+      "module": 1,
+      "scope": 1,
+      "name": "use_global_fallback"
+    },
+    {
+      "id": 57,
+      "module": 1,
+      "scope": 12,
+      "name": "module_fallback"
+    },
+    {
+      "id": 58,
+      "module": 1,
+      "scope": 13,
+      "name": "item"
+    },
+    {
+      "id": 59,
+      "module": 1,
+      "scope": 14,
+      "name": "item"
+    }
+  ],
+  "bindings": [
+    {
+      "id": 0,
+      "module": 1,
+      "scope": 1,
+      "symbol": 9,
+      "kind": "assignment",
+      "name": "global_slot",
+      "order": 0,
+      "range": {
+        "start": 0,
+        "end": 11
+      },
+      "name_range": {
+        "start": 0,
+        "end": 11
+      }
+    },
+    {
+      "id": 1,
+      "module": 1,
+      "scope": 1,
+      "symbol": 12,
+      "kind": "assignment",
+      "name": "module_fallback",
+      "order": 1,
+      "range": {
+        "start": 16,
+        "end": 31
+      },
+      "name_range": {
+        "start": 16,
+        "end": 31
+      }
+    },
+    {
+      "id": 2,
+      "module": 1,
+      "scope": 1,
+      "symbol": 4,
+      "kind": "assignment",
+      "name": "eager_source",
+      "order": 2,
+      "range": {
+        "start": 36,
+        "end": 48
+      },
+      "name_range": {
+        "start": 36,
+        "end": 48
+      }
+    },
+    {
+      "id": 3,
+      "module": 1,
+      "scope": 1,
+      "symbol": 10,
+      "kind": "assignment",
+      "name": "items",
+      "order": 3,
+      "range": {
+        "start": 53,
+        "end": 58
+      },
+      "name_range": {
+        "start": 53,
+        "end": 58
+      }
+    },
+    {
+      "id": 4,
+      "module": 1,
+      "scope": 1,
+      "symbol": 13,
+      "kind": "assignment",
+      "name": "module_partial",
+      "order": 4,
+      "range": {
+        "start": 82,
+        "end": 96
+      },
+      "name_range": {
+        "start": 82,
+        "end": 96
+      }
+    },
+    {
+      "id": 5,
+      "module": 1,
+      "scope": 1,
+      "symbol": 15,
+      "kind": "function_definition",
+      "name": "sequential",
+      "order": 5,
+      "range": {
+        "start": 138,
+        "end": 250
+      },
+      "name_range": {
+        "start": 142,
+        "end": 152
+      },
+      "definition": 0
+    },
+    {
+      "id": 6,
+      "module": 1,
+      "scope": 2,
+      "symbol": 19,
+      "kind": "assignment",
+      "name": "seq_value",
+      "order": 6,
+      "range": {
+        "start": 160,
+        "end": 169
+      },
+      "name_range": {
+        "start": 160,
+        "end": 169
+      }
+    },
+    {
+      "id": 7,
+      "module": 1,
+      "scope": 2,
+      "symbol": 19,
+      "kind": "assignment",
+      "name": "seq_value",
+      "order": 7,
+      "range": {
+        "start": 207,
+        "end": 216
+      },
+      "name_range": {
+        "start": 207,
+        "end": 216
+      },
+      "replaces": 6
+    },
+    {
+      "id": 8,
+      "module": 1,
+      "scope": 1,
+      "symbol": 1,
+      "kind": "function_definition",
+      "name": "branches",
+      "order": 8,
+      "range": {
+        "start": 253,
+        "end": 445
+      },
+      "name_range": {
+        "start": 257,
+        "end": 265
+      },
+      "definition": 1
+    },
+    {
+      "id": 9,
+      "module": 1,
+      "scope": 3,
+      "symbol": 23,
+      "kind": "parameter",
+      "name": "flag",
+      "order": 9,
+      "range": {
+        "start": 266,
+        "end": 270
+      },
+      "name_range": {
+        "start": 266,
+        "end": 270
+      }
+    },
+    {
+      "id": 10,
+      "module": 1,
+      "scope": 3,
+      "symbol": 22,
+      "kind": "assignment",
+      "name": "branch_value",
+      "order": 10,
+      "range": {
+        "start": 294,
+        "end": 306
+      },
+      "name_range": {
+        "start": 294,
+        "end": 306
+      }
+    },
+    {
+      "id": 11,
+      "module": 1,
+      "scope": 3,
+      "symbol": 22,
+      "kind": "assignment",
+      "name": "branch_value",
+      "order": 11,
+      "range": {
+        "start": 329,
+        "end": 341
+      },
+      "name_range": {
+        "start": 329,
+        "end": 341
+      },
+      "replaces": 10
+    },
+    {
+      "id": 12,
+      "module": 1,
+      "scope": 3,
+      "symbol": 24,
+      "kind": "assignment",
+      "name": "partial_value",
+      "order": 12,
+      "range": {
+        "start": 397,
+        "end": 410
+      },
+      "name_range": {
+        "start": 397,
+        "end": 410
+      }
+    },
+    {
+      "id": 13,
+      "module": 1,
+      "scope": 1,
+      "symbol": 3,
+      "kind": "function_definition",
+      "name": "deletion",
+      "order": 13,
+      "range": {
+        "start": 448,
+        "end": 538
+      },
+      "name_range": {
+        "start": 452,
+        "end": 460
+      },
+      "definition": 2
+    },
+    {
+      "id": 14,
+      "module": 1,
+      "scope": 4,
+      "symbol": 27,
+      "kind": "assignment",
+      "name": "deleted_value",
+      "order": 14,
+      "range": {
+        "start": 468,
+        "end": 481
+      },
+      "name_range": {
+        "start": 468,
+        "end": 481
+      }
+    },
+    {
+      "id": 15,
+      "module": 1,
+      "scope": 4,
+      "symbol": 27,
+      "kind": "delete",
+      "name": "deleted_value",
+      "order": 15,
+      "range": {
+        "start": 494,
+        "end": 507
+      },
+      "name_range": {
+        "start": 494,
+        "end": 507
+      },
+      "replaces": 14
+    },
+    {
+      "id": 16,
+      "module": 1,
+      "scope": 1,
+      "symbol": 16,
+      "kind": "function_definition",
+      "name": "unreachable",
+      "order": 16,
+      "range": {
+        "start": 541,
+        "end": 603
+      },
+      "name_range": {
+        "start": 545,
+        "end": 556
+      },
+      "definition": 3
+    },
+    {
+      "id": 17,
+      "module": 1,
+      "scope": 1,
+      "symbol": 8,
+      "kind": "function_definition",
+      "name": "global_flow",
+      "order": 17,
+      "range": {
+        "start": 606,
+        "end": 759
+      },
+      "name_range": {
+        "start": 610,
+        "end": 621
+      },
+      "definition": 4
+    },
+    {
+      "id": 18,
+      "module": 1,
+      "scope": 1,
+      "symbol": 9,
+      "kind": "assignment",
+      "name": "global_slot",
+      "order": 18,
+      "range": {
+        "start": 652,
+        "end": 663
+      },
+      "name_range": {
+        "start": 652,
+        "end": 663
+      },
+      "replaces": 0
+    },
+    {
+      "id": 19,
+      "module": 1,
+      "scope": 1,
+      "symbol": 2,
+      "kind": "function_definition",
+      "name": "conditional_global",
+      "order": 19,
+      "range": {
+        "start": 762,
+        "end": 891
+      },
+      "name_range": {
+        "start": 766,
+        "end": 784
+      },
+      "definition": 5
+    },
+    {
+      "id": 20,
+      "module": 1,
+      "scope": 7,
+      "symbol": 33,
+      "kind": "parameter",
+      "name": "flag",
+      "order": 20,
+      "range": {
+        "start": 785,
+        "end": 789
+      },
+      "name_range": {
+        "start": 785,
+        "end": 789
+      }
+    },
+    {
+      "id": 21,
+      "module": 1,
+      "scope": 1,
+      "symbol": 9,
+      "kind": "assignment",
+      "name": "global_slot",
+      "order": 21,
+      "range": {
+        "start": 836,
+        "end": 847
+      },
+      "name_range": {
+        "start": 836,
+        "end": 847
+      },
+      "replaces": 18
+    },
+    {
+      "id": 22,
+      "module": 1,
+      "scope": 1,
+      "symbol": 14,
+      "kind": "function_definition",
+      "name": "outer_nonlocal",
+      "order": 22,
+      "range": {
+        "start": 894,
+        "end": 1083
+      },
+      "name_range": {
+        "start": 898,
+        "end": 912
+      },
+      "definition": 6
+    },
+    {
+      "id": 23,
+      "module": 1,
+      "scope": 8,
+      "symbol": 35,
+      "kind": "parameter",
+      "name": "flag",
+      "order": 23,
+      "range": {
+        "start": 913,
+        "end": 917
+      },
+      "name_range": {
+        "start": 913,
+        "end": 917
+      }
+    },
+    {
+      "id": 24,
+      "module": 1,
+      "scope": 8,
+      "symbol": 37,
+      "kind": "assignment",
+      "name": "outer_value",
+      "order": 24,
+      "range": {
+        "start": 924,
+        "end": 935
+      },
+      "name_range": {
+        "start": 924,
+        "end": 935
+      }
+    },
+    {
+      "id": 25,
+      "module": 1,
+      "scope": 8,
+      "symbol": 36,
+      "kind": "function_definition",
+      "name": "inner",
+      "order": 25,
+      "range": {
+        "start": 945,
+        "end": 1065
+      },
+      "name_range": {
+        "start": 949,
+        "end": 954
+      },
+      "definition": 7
+    },
+    {
+      "id": 26,
+      "module": 1,
+      "scope": 8,
+      "symbol": 37,
+      "kind": "assignment",
+      "name": "outer_value",
+      "order": 26,
+      "range": {
+        "start": 1016,
+        "end": 1027
+      },
+      "name_range": {
+        "start": 1016,
+        "end": 1027
+      },
+      "replaces": 24
+    },
+    {
+      "id": 27,
+      "module": 1,
+      "scope": 1,
+      "symbol": 6,
+      "kind": "function_definition",
+      "name": "exception_flow",
+      "order": 27,
+      "range": {
+        "start": 1086,
+        "end": 1283
+      },
+      "name_range": {
+        "start": 1090,
+        "end": 1104
+      },
+      "definition": 8
+    },
+    {
+      "id": 28,
+      "module": 1,
+      "scope": 10,
+      "symbol": 40,
+      "kind": "assignment",
+      "name": "try_value",
+      "order": 28,
+      "range": {
+        "start": 1125,
+        "end": 1134
+      },
+      "name_range": {
+        "start": 1125,
+        "end": 1134
+      }
+    },
+    {
+      "id": 29,
+      "module": 1,
+      "scope": 10,
+      "symbol": 39,
+      "kind": "except_target",
+      "name": "exc_value",
+      "order": 29,
+      "range": {
+        "start": 1181,
+        "end": 1190
+      },
+      "name_range": {
+        "start": 1181,
+        "end": 1190
+      }
+    },
+    {
+      "id": 30,
+      "module": 1,
+      "scope": 1,
+      "symbol": 11,
+      "kind": "function_definition",
+      "name": "match_flow",
+      "order": 30,
+      "range": {
+        "start": 1286,
+        "end": 1454
+      },
+      "name_range": {
+        "start": 1290,
+        "end": 1300
+      },
+      "definition": 9
+    },
+    {
+      "id": 31,
+      "module": 1,
+      "scope": 11,
+      "symbol": 47,
+      "kind": "parameter",
+      "name": "subject",
+      "order": 31,
+      "range": {
+        "start": 1301,
+        "end": 1308
+      },
+      "name_range": {
+        "start": 1301,
+        "end": 1308
+      }
+    },
+    {
+      "id": 32,
+      "module": 1,
+      "scope": 11,
+      "symbol": 46,
+      "kind": "match_capture",
+      "name": "captured_value",
+      "order": 32,
+      "range": {
+        "start": 1351,
+        "end": 1365
+      },
+      "name_range": {
+        "start": 1351,
+        "end": 1365
+      }
+    },
+    {
+      "id": 33,
+      "module": 1,
+      "scope": 1,
+      "symbol": 0,
+      "kind": "class_definition",
+      "name": "ClassFlow",
+      "order": 33,
+      "range": {
+        "start": 1457,
+        "end": 1587
+      },
+      "name_range": {
+        "start": 1463,
+        "end": 1472
+      },
+      "definition": 10
+    },
+    {
+      "id": 34,
+      "module": 1,
+      "scope": 12,
+      "symbol": 50,
+      "kind": "assignment",
+      "name": "maybe_class",
+      "order": 34,
+      "range": {
+        "start": 1495,
+        "end": 1506
+      },
+      "name_range": {
+        "start": 1495,
+        "end": 1506
+      }
+    },
+    {
+      "id": 35,
+      "module": 1,
+      "scope": 13,
+      "symbol": 58,
+      "kind": "for_target",
+      "name": "item",
+      "order": 35,
+      "range": {
+        "start": 1623,
+        "end": 1627
+      },
+      "name_range": {
+        "start": 1623,
+        "end": 1627
+      }
+    },
+    {
+      "id": 36,
+      "module": 1,
+      "scope": 1,
+      "symbol": 5,
+      "kind": "assignment",
+      "name": "eager_values",
+      "order": 36,
+      "range": {
+        "start": 1590,
+        "end": 1602
+      },
+      "name_range": {
+        "start": 1590,
+        "end": 1602
+      }
+    },
+    {
+      "id": 37,
+      "module": 1,
+      "scope": 14,
+      "symbol": 59,
+      "kind": "for_target",
+      "name": "item",
+      "order": 37,
+      "range": {
+        "start": 1675,
+        "end": 1679
+      },
+      "name_range": {
+        "start": 1675,
+        "end": 1679
+      }
+    },
+    {
+      "id": 38,
+      "module": 1,
+      "scope": 1,
+      "symbol": 7,
+      "kind": "assignment",
+      "name": "generator_values",
+      "order": 38,
+      "range": {
+        "start": 1638,
+        "end": 1654
+      },
+      "name_range": {
+        "start": 1638,
+        "end": 1654
+      }
+    }
+  ],
+  "binding_sets": [
+    {
+      "id": 0,
+      "bindings": []
+    },
+    {
+      "id": 1,
+      "bindings": [
+        4
+      ]
+    },
+    {
+      "id": 2,
+      "bindings": [
+        6
+      ]
+    },
+    {
+      "id": 3,
+      "bindings": [
+        7
+      ]
+    },
+    {
+      "id": 4,
+      "bindings": [
+        9
+      ]
+    },
+    {
+      "id": 5,
+      "bindings": [
+        10,
+        11
+      ]
+    },
+    {
+      "id": 6,
+      "bindings": [
+        12
+      ]
+    },
+    {
+      "id": 7,
+      "bindings": [
+        18
+      ]
+    },
+    {
+      "id": 8,
+      "bindings": [
+        20
+      ]
+    },
+    {
+      "id": 9,
+      "bindings": [
+        21
+      ]
+    },
+    {
+      "id": 10,
+      "bindings": [
+        26
+      ]
+    },
+    {
+      "id": 11,
+      "bindings": [
+        25
+      ]
+    },
+    {
+      "id": 12,
+      "bindings": [
+        29
+      ]
+    },
+    {
+      "id": 13,
+      "bindings": [
+        28
+      ]
+    },
+    {
+      "id": 14,
+      "bindings": [
+        31
+      ]
+    },
+    {
+      "id": 15,
+      "bindings": [
+        32
+      ]
+    },
+    {
+      "id": 16,
+      "bindings": [
+        34
+      ]
+    },
+    {
+      "id": 17,
+      "bindings": [
+        1
+      ]
+    },
+    {
+      "id": 18,
+      "bindings": [
+        3
+      ]
+    },
+    {
+      "id": 19,
+      "bindings": [
+        2
+      ]
+    }
+  ],
+  "flow_uncertainty_sets": [
+    {
+      "id": 0,
+      "uncertainties": []
+    },
+    {
+      "id": 1,
+      "uncertainties": [
+        "opaque_call_may_mutate_global"
+      ]
+    },
+    {
+      "id": 2,
+      "uncertainties": [
+        "opaque_call_may_mutate_global",
+        "complex_exception_flow"
+      ]
+    },
+    {
+      "id": 3,
+      "uncertainties": [
+        "complex_exception_flow"
+      ]
+    },
+    {
+      "id": 4,
+      "uncertainties": [
+        "failed_partial_match"
+      ]
+    }
+  ],
+  "definitions": [
+    {
+      "id": 0,
+      "module": 1,
+      "binding": 5,
+      "scope": 2,
+      "context": 2,
+      "kind": "function",
+      "name": "sequential",
+      "qualified_name": "pkg.flow::sequential",
+      "range": {
+        "start": 138,
+        "end": 250
+      },
+      "name_range": {
+        "start": 142,
+        "end": 152
+      },
+      "reportable": true,
+      "is_async": false
+    },
+    {
+      "id": 1,
+      "module": 1,
+      "binding": 8,
+      "scope": 3,
+      "context": 3,
+      "kind": "function",
+      "name": "branches",
+      "qualified_name": "pkg.flow::branches",
+      "range": {
+        "start": 253,
+        "end": 445
+      },
+      "name_range": {
+        "start": 257,
+        "end": 265
+      },
+      "reportable": true,
+      "is_async": false
+    },
+    {
+      "id": 2,
+      "module": 1,
+      "binding": 13,
+      "scope": 4,
+      "context": 4,
+      "kind": "function",
+      "name": "deletion",
+      "qualified_name": "pkg.flow::deletion",
+      "range": {
+        "start": 448,
+        "end": 538
+      },
+      "name_range": {
+        "start": 452,
+        "end": 460
+      },
+      "reportable": true,
+      "is_async": false
+    },
+    {
+      "id": 3,
+      "module": 1,
+      "binding": 16,
+      "scope": 5,
+      "context": 5,
+      "kind": "function",
+      "name": "unreachable",
+      "qualified_name": "pkg.flow::unreachable",
+      "range": {
+        "start": 541,
+        "end": 603
+      },
+      "name_range": {
+        "start": 545,
+        "end": 556
+      },
+      "reportable": true,
+      "is_async": false
+    },
+    {
+      "id": 4,
+      "module": 1,
+      "binding": 17,
+      "scope": 6,
+      "context": 6,
+      "kind": "function",
+      "name": "global_flow",
+      "qualified_name": "pkg.flow::global_flow",
+      "range": {
+        "start": 606,
+        "end": 759
+      },
+      "name_range": {
+        "start": 610,
+        "end": 621
+      },
+      "reportable": true,
+      "is_async": false
+    },
+    {
+      "id": 5,
+      "module": 1,
+      "binding": 19,
+      "scope": 7,
+      "context": 7,
+      "kind": "function",
+      "name": "conditional_global",
+      "qualified_name": "pkg.flow::conditional_global",
+      "range": {
+        "start": 762,
+        "end": 891
+      },
+      "name_range": {
+        "start": 766,
+        "end": 784
+      },
+      "reportable": true,
+      "is_async": false
+    },
+    {
+      "id": 6,
+      "module": 1,
+      "binding": 22,
+      "scope": 8,
+      "context": 8,
+      "kind": "function",
+      "name": "outer_nonlocal",
+      "qualified_name": "pkg.flow::outer_nonlocal",
+      "range": {
+        "start": 894,
+        "end": 1083
+      },
+      "name_range": {
+        "start": 898,
+        "end": 912
+      },
+      "reportable": true,
+      "is_async": false
+    },
+    {
+      "id": 7,
+      "module": 1,
+      "binding": 25,
+      "scope": 9,
+      "context": 9,
+      "kind": "function",
+      "name": "inner",
+      "qualified_name": "pkg.flow::outer_nonlocal.inner",
+      "range": {
+        "start": 945,
+        "end": 1065
+      },
+      "name_range": {
+        "start": 949,
+        "end": 954
+      },
+      "reportable": false,
+      "is_async": false
+    },
+    {
+      "id": 8,
+      "module": 1,
+      "binding": 27,
+      "scope": 10,
+      "context": 10,
+      "kind": "function",
+      "name": "exception_flow",
+      "qualified_name": "pkg.flow::exception_flow",
+      "range": {
+        "start": 1086,
+        "end": 1283
+      },
+      "name_range": {
+        "start": 1090,
+        "end": 1104
+      },
+      "reportable": true,
+      "is_async": false
+    },
+    {
+      "id": 9,
+      "module": 1,
+      "binding": 30,
+      "scope": 11,
+      "context": 11,
+      "kind": "function",
+      "name": "match_flow",
+      "qualified_name": "pkg.flow::match_flow",
+      "range": {
+        "start": 1286,
+        "end": 1454
+      },
+      "name_range": {
+        "start": 1290,
+        "end": 1300
+      },
+      "reportable": true,
+      "is_async": false
+    },
+    {
+      "id": 10,
+      "module": 1,
+      "binding": 33,
+      "scope": 12,
+      "context": 12,
+      "kind": "class",
+      "name": "ClassFlow",
+      "qualified_name": "pkg.flow::ClassFlow",
+      "range": {
+        "start": 1457,
+        "end": 1587
+      },
+      "name_range": {
+        "start": 1463,
+        "end": 1472
+      },
+      "reportable": true,
+      "is_async": false
+    }
+  ],
+  "references": [
+    {
+      "id": 0,
+      "module": 1,
+      "source_scope": 1,
+      "source_context": 1,
+      "source_spelling": "cond",
+      "semantic_name": "cond",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 17
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 17
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "builtin_or_name_error",
+          "uncertainty": 0
+        }
+      },
+      "phase": "definition_time",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 72,
+        "end": 76
+      }
+    },
+    {
+      "id": 1,
+      "module": 1,
+      "source_scope": 1,
+      "source_context": 1,
+      "source_spelling": "use_module_partial",
+      "semantic_name": "use_module_partial",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 18
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 18
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "builtin_or_name_error",
+          "uncertainty": 0
+        }
+      },
+      "phase": "definition_time",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 101,
+        "end": 119
+      }
+    },
+    {
+      "id": 2,
+      "module": 1,
+      "source_scope": 1,
+      "source_context": 1,
+      "source_spelling": "module_partial",
+      "semantic_name": "module_partial",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 13
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 13
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 1,
+          "residual": "builtin_or_name_error",
+          "uncertainty": 0
+        }
+      },
+      "phase": "definition_time",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 120,
+        "end": 134
+      }
+    },
+    {
+      "id": 3,
+      "module": 1,
+      "source_scope": 2,
+      "source_context": 2,
+      "source_spelling": "use_seq_first",
+      "semantic_name": "use_seq_first",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 20
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 20
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 178,
+        "end": 191
+      }
+    },
+    {
+      "id": 4,
+      "module": 1,
+      "source_scope": 2,
+      "source_context": 2,
+      "source_spelling": "seq_value",
+      "semantic_name": "seq_value",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 19
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 2,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 192,
+        "end": 201
+      }
+    },
+    {
+      "id": 5,
+      "module": 1,
+      "source_scope": 2,
+      "source_context": 2,
+      "source_spelling": "use_seq_second",
+      "semantic_name": "use_seq_second",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 21
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 21
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 225,
+        "end": 239
+      }
+    },
+    {
+      "id": 6,
+      "module": 1,
+      "source_scope": 2,
+      "source_context": 2,
+      "source_spelling": "seq_value",
+      "semantic_name": "seq_value",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 19
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 3,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 240,
+        "end": 249
+      }
+    },
+    {
+      "id": 7,
+      "module": 1,
+      "source_scope": 3,
+      "source_context": 3,
+      "source_spelling": "flag",
+      "semantic_name": "flag",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 23
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 4,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 280,
+        "end": 284
+      }
+    },
+    {
+      "id": 8,
+      "module": 1,
+      "source_scope": 3,
+      "source_context": 3,
+      "source_spelling": "use_branch",
+      "semantic_name": "use_branch",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 25
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 25
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 350,
+        "end": 360
+      }
+    },
+    {
+      "id": 9,
+      "module": 1,
+      "source_scope": 3,
+      "source_context": 3,
+      "source_spelling": "branch_value",
+      "semantic_name": "branch_value",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 22
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 5,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 361,
+        "end": 373
+      }
+    },
+    {
+      "id": 10,
+      "module": 1,
+      "source_scope": 3,
+      "source_context": 3,
+      "source_spelling": "flag",
+      "semantic_name": "flag",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 23
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 4,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 383,
+        "end": 387
+      }
+    },
+    {
+      "id": 11,
+      "module": 1,
+      "source_scope": 3,
+      "source_context": 3,
+      "source_spelling": "use_partial",
+      "semantic_name": "use_partial",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 26
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 26
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 419,
+        "end": 430
+      }
+    },
+    {
+      "id": 12,
+      "module": 1,
+      "source_scope": 3,
+      "source_context": 3,
+      "source_spelling": "partial_value",
+      "semantic_name": "partial_value",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 24
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 6,
+          "residual": "unbound_local",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 431,
+        "end": 444
+      }
+    },
+    {
+      "id": 13,
+      "module": 1,
+      "source_scope": 4,
+      "source_context": 4,
+      "source_spelling": "use_deleted",
+      "semantic_name": "use_deleted",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 28
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 28
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 512,
+        "end": 523
+      }
+    },
+    {
+      "id": 14,
+      "module": 1,
+      "source_scope": 4,
+      "source_context": 4,
+      "source_spelling": "deleted_value",
+      "semantic_name": "deleted_value",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 27
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "unbound_local",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 524,
+        "end": 537
+      }
+    },
+    {
+      "id": 15,
+      "module": 1,
+      "source_scope": 5,
+      "source_context": 5,
+      "source_spelling": "use_unreachable",
+      "semantic_name": "use_unreachable",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 29
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 29
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "unreachable",
+          "bindings": 0,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 575,
+        "end": 590
+      }
+    },
+    {
+      "id": 16,
+      "module": 1,
+      "source_scope": 5,
+      "source_context": 5,
+      "source_spelling": "global_slot",
+      "semantic_name": "global_slot",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 9
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 9
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "unreachable",
+          "bindings": 0,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 591,
+        "end": 602
+      }
+    },
+    {
+      "id": 17,
+      "module": 1,
+      "source_scope": 6,
+      "source_context": 6,
+      "source_spelling": "use_global_known",
+      "semantic_name": "use_global_known",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 30
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 30
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 672,
+        "end": 688
+      }
+    },
+    {
+      "id": 18,
+      "module": 1,
+      "source_scope": 6,
+      "source_context": 6,
+      "source_spelling": "global_slot",
+      "semantic_name": "global_slot",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 9
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 9
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 7,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 689,
+        "end": 700
+      }
+    },
+    {
+      "id": 19,
+      "module": 1,
+      "source_scope": 6,
+      "source_context": 6,
+      "source_spelling": "maybe_mutate",
+      "semantic_name": "maybe_mutate",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 31
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 31
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 706,
+        "end": 718
+      }
+    },
+    {
+      "id": 20,
+      "module": 1,
+      "source_scope": 6,
+      "source_context": 6,
+      "source_spelling": "use_global_after_call",
+      "semantic_name": "use_global_after_call",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 32
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 32
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 725,
+        "end": 746
+      }
+    },
+    {
+      "id": 21,
+      "module": 1,
+      "source_scope": 6,
+      "source_context": 6,
+      "source_spelling": "global_slot",
+      "semantic_name": "global_slot",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 9
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 9
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 7,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 747,
+        "end": 758
+      }
+    },
+    {
+      "id": 22,
+      "module": 1,
+      "source_scope": 7,
+      "source_context": 7,
+      "source_spelling": "flag",
+      "semantic_name": "flag",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 33
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 8,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 822,
+        "end": 826
+      }
+    },
+    {
+      "id": 23,
+      "module": 1,
+      "source_scope": 7,
+      "source_context": 7,
+      "source_spelling": "use_conditional_global",
+      "semantic_name": "use_conditional_global",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 34
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 34
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 856,
+        "end": 878
+      }
+    },
+    {
+      "id": 24,
+      "module": 1,
+      "source_scope": 7,
+      "source_context": 7,
+      "source_spelling": "global_slot",
+      "semantic_name": "global_slot",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 9
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 9
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 9,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 879,
+        "end": 890
+      }
+    },
+    {
+      "id": 25,
+      "module": 1,
+      "source_scope": 9,
+      "source_context": 9,
+      "source_spelling": "flag",
+      "semantic_name": "flag",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 35
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_free_variable",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 998,
+        "end": 1002
+      }
+    },
+    {
+      "id": 26,
+      "module": 1,
+      "source_scope": 9,
+      "source_context": 9,
+      "source_spelling": "use_nonlocal",
+      "semantic_name": "use_nonlocal",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 38
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 38
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1040,
+        "end": 1052
+      }
+    },
+    {
+      "id": 27,
+      "module": 1,
+      "source_scope": 9,
+      "source_context": 9,
+      "source_spelling": "outer_value",
+      "semantic_name": "outer_value",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 37
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 10,
+          "residual": "runtime_free_variable",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1053,
+        "end": 1064
+      }
+    },
+    {
+      "id": 28,
+      "module": 1,
+      "source_scope": 8,
+      "source_context": 8,
+      "source_spelling": "inner",
+      "semantic_name": "inner",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 36
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 11,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1078,
+        "end": 1083
+      }
+    },
+    {
+      "id": 29,
+      "module": 1,
+      "source_scope": 10,
+      "source_context": 10,
+      "source_spelling": "maybe_raise",
+      "semantic_name": "maybe_raise",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 41
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 41
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1147,
+        "end": 1158
+      }
+    },
+    {
+      "id": 30,
+      "module": 1,
+      "source_scope": 10,
+      "source_context": 10,
+      "source_spelling": "Error",
+      "semantic_name": "Error",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 42
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 42
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 2
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1172,
+        "end": 1177
+      }
+    },
+    {
+      "id": 31,
+      "module": 1,
+      "source_scope": 10,
+      "source_context": 10,
+      "source_spelling": "use_exc_inside",
+      "semantic_name": "use_exc_inside",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 43
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 43
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 2
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1200,
+        "end": 1214
+      }
+    },
+    {
+      "id": 32,
+      "module": 1,
+      "source_scope": 10,
+      "source_context": 10,
+      "source_spelling": "exc_value",
+      "semantic_name": "exc_value",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 39
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 12,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1215,
+        "end": 1224
+      }
+    },
+    {
+      "id": 33,
+      "module": 1,
+      "source_scope": 10,
+      "source_context": 10,
+      "source_spelling": "use_exc_after",
+      "semantic_name": "use_exc_after",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 44
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 44
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 2
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1230,
+        "end": 1243
+      }
+    },
+    {
+      "id": 34,
+      "module": 1,
+      "source_scope": 10,
+      "source_context": 10,
+      "source_spelling": "exc_value",
+      "semantic_name": "exc_value",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 39
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "unbound_local",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1244,
+        "end": 1253
+      }
+    },
+    {
+      "id": 35,
+      "module": 1,
+      "source_scope": 10,
+      "source_context": 10,
+      "source_spelling": "use_try_value",
+      "semantic_name": "use_try_value",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 45
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 45
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 2
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1259,
+        "end": 1272
+      }
+    },
+    {
+      "id": 36,
+      "module": 1,
+      "source_scope": 10,
+      "source_context": 10,
+      "source_spelling": "try_value",
+      "semantic_name": "try_value",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 40
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 13,
+          "residual": "unbound_local",
+          "uncertainty": 3
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1273,
+        "end": 1282
+      }
+    },
+    {
+      "id": 37,
+      "module": 1,
+      "source_scope": 11,
+      "source_context": 11,
+      "source_spelling": "subject",
+      "semantic_name": "subject",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 47
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 14,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1321,
+        "end": 1328
+      }
+    },
+    {
+      "id": 38,
+      "module": 1,
+      "source_scope": 11,
+      "source_context": 11,
+      "source_spelling": "use_captured_inside",
+      "semantic_name": "use_captured_inside",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 48
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 48
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1380,
+        "end": 1399
+      }
+    },
+    {
+      "id": 39,
+      "module": 1,
+      "source_scope": 11,
+      "source_context": 11,
+      "source_spelling": "captured_value",
+      "semantic_name": "captured_value",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 46
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 15,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1400,
+        "end": 1414
+      }
+    },
+    {
+      "id": 40,
+      "module": 1,
+      "source_scope": 11,
+      "source_context": 11,
+      "source_spelling": "use_captured_after",
+      "semantic_name": "use_captured_after",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 49
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 49
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1420,
+        "end": 1438
+      }
+    },
+    {
+      "id": 41,
+      "module": 1,
+      "source_scope": 11,
+      "source_context": 11,
+      "source_spelling": "captured_value",
+      "semantic_name": "captured_value",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 46
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 15,
+          "residual": "unbound_local",
+          "uncertainty": 4
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1439,
+        "end": 1453
+      }
+    },
+    {
+      "id": 42,
+      "module": 1,
+      "source_scope": 12,
+      "source_context": 12,
+      "source_spelling": "cond",
+      "semantic_name": "cond",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 51
+      },
+      "lookup": {
+        "kind": "class_local_then_global_then_builtin",
+        "class_symbol": 51,
+        "global_symbol": 17
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "definition_time",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1481,
+        "end": 1485
+      }
+    },
+    {
+      "id": 43,
+      "module": 1,
+      "source_scope": 12,
+      "source_context": 12,
+      "source_spelling": "use_class_fallback",
+      "semantic_name": "use_class_fallback",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 52
+      },
+      "lookup": {
+        "kind": "class_local_then_global_then_builtin",
+        "class_symbol": 52,
+        "global_symbol": 53
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "definition_time",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1515,
+        "end": 1533
+      }
+    },
+    {
+      "id": 44,
+      "module": 1,
+      "source_scope": 12,
+      "source_context": 12,
+      "source_spelling": "maybe_class",
+      "semantic_name": "maybe_class",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 50
+      },
+      "lookup": {
+        "kind": "class_local_then_global_then_builtin",
+        "class_symbol": 50,
+        "global_symbol": 54
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 16,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "definition_time",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1534,
+        "end": 1545
+      }
+    },
+    {
+      "id": 45,
+      "module": 1,
+      "source_scope": 12,
+      "source_context": 12,
+      "source_spelling": "use_global_fallback",
+      "semantic_name": "use_global_fallback",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 55
+      },
+      "lookup": {
+        "kind": "class_local_then_global_then_builtin",
+        "class_symbol": 55,
+        "global_symbol": 56
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "definition_time",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1551,
+        "end": 1570
+      }
+    },
+    {
+      "id": 46,
+      "module": 1,
+      "source_scope": 12,
+      "source_context": 12,
+      "source_spelling": "module_fallback",
+      "semantic_name": "module_fallback",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 57
+      },
+      "lookup": {
+        "kind": "class_local_then_global_then_builtin",
+        "class_symbol": 57,
+        "global_symbol": 12
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 17,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "definition_time",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1571,
+        "end": 1586
+      }
+    },
+    {
+      "id": 47,
+      "module": 1,
+      "source_scope": 1,
+      "source_context": 1,
+      "source_spelling": "items",
+      "semantic_name": "items",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 10
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 10
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 18,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "definition_time",
+      "role": "comprehension_iterable",
+      "origin_domain": "production",
+      "span": {
+        "start": 1631,
+        "end": 1636
+      }
+    },
+    {
+      "id": 48,
+      "module": 1,
+      "source_scope": 13,
+      "source_context": 13,
+      "source_spelling": "eager_source",
+      "semantic_name": "eager_source",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 4
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 4
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 19,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1606,
+        "end": 1618
+      }
+    },
+    {
+      "id": 49,
+      "module": 1,
+      "source_scope": 1,
+      "source_context": 1,
+      "source_spelling": "items",
+      "semantic_name": "items",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 10
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 10
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 18,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "definition_time",
+      "role": "comprehension_iterable",
+      "origin_domain": "production",
+      "span": {
+        "start": 1683,
+        "end": 1688
+      }
+    },
+    {
+      "id": 50,
+      "module": 1,
+      "source_scope": 14,
+      "source_context": 14,
+      "source_spelling": "eager_source",
+      "semantic_name": "eager_source",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 4
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 4
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 1658,
+        "end": 1670
+      }
+    }
+  ],
+  "context_flow_statuses": [
+    {
+      "context": 0,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 1,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 2,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 3,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 4,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 5,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 6,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 7,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 8,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 9,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 10,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 11,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 12,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 13,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 14,
+      "status": {
+        "status": "complete"
+      }
+    }
+  ],
+  "diagnostics": []
+}

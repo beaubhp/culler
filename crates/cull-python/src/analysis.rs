@@ -2,15 +2,17 @@ use std::{fs, path::PathBuf};
 
 use cull_core::{
     DebugBindingModule, DebugBindingsOutput, DebugDefinition, DebugDefinitionsOutput, DebugModule,
-    Diagnostic, PythonVersion, SemanticGraphBuilder,
+    DebugReferencesOutput, Diagnostic, PythonVersion, SemanticGraph, SemanticGraphBuilder,
+    SourceRootOutput,
 };
 
 use crate::{
-    binding_inventory::collect_module_bindings,
     decode_python_source,
     discovery::{discover_project, DiscoveryOptions},
+    flow_analysis::analyze_module_flow,
     frontend::{ParseInput, PythonFrontend},
     ruff_frontend::{parse_ruff_module, RuffFrontend},
+    semantic_inventory::collect_module_semantics,
 };
 
 #[derive(Clone, Debug)]
@@ -22,6 +24,13 @@ pub struct DebugDefinitionsOptions {
 
 #[derive(Clone, Debug)]
 pub struct DebugBindingsOptions {
+    pub project_root: PathBuf,
+    pub source_roots: Vec<PathBuf>,
+    pub target_python: Option<PythonVersion>,
+}
+
+#[derive(Clone, Debug)]
+pub struct DebugReferencesOptions {
     pub project_root: PathBuf,
     pub source_roots: Vec<PathBuf>,
     pub target_python: Option<PythonVersion>,
@@ -122,10 +131,86 @@ pub fn analyze_debug_definitions(
 pub fn analyze_debug_bindings(
     options: DebugBindingsOptions,
 ) -> Result<DebugBindingsOutput, Diagnostic> {
+    let output = analyze_semantic_project(
+        options.project_root,
+        options.source_roots,
+        options.target_python,
+    )?;
+    let SemanticDebugData {
+        target_python,
+        project_root,
+        source_roots,
+        graph,
+        diagnostics,
+    } = output;
+
+    Ok(DebugBindingsOutput {
+        schema_version: 1,
+        target_python,
+        project_root,
+        source_roots,
+        modules: debug_modules(graph.modules),
+        scopes: graph.scopes,
+        contexts: graph.contexts,
+        symbols: graph.symbols,
+        bindings: graph.bindings,
+        definitions: graph.definitions,
+        diagnostics,
+    })
+}
+
+pub fn analyze_debug_references(
+    options: DebugReferencesOptions,
+) -> Result<DebugReferencesOutput, Diagnostic> {
+    let output = analyze_semantic_project(
+        options.project_root,
+        options.source_roots,
+        options.target_python,
+    )?;
+    let SemanticDebugData {
+        target_python,
+        project_root,
+        source_roots,
+        graph,
+        diagnostics,
+    } = output;
+
+    Ok(DebugReferencesOutput {
+        schema_version: 1,
+        target_python,
+        project_root,
+        source_roots,
+        modules: debug_modules(graph.modules),
+        scopes: graph.scopes,
+        contexts: graph.contexts,
+        symbols: graph.symbols,
+        bindings: graph.bindings,
+        binding_sets: graph.binding_sets,
+        flow_uncertainty_sets: graph.flow_uncertainty_sets,
+        definitions: graph.definitions,
+        references: graph.references,
+        context_flow_statuses: graph.context_flow_statuses,
+        diagnostics,
+    })
+}
+
+struct SemanticDebugData {
+    target_python: PythonVersion,
+    project_root: String,
+    source_roots: Vec<SourceRootOutput>,
+    graph: SemanticGraph,
+    diagnostics: Vec<Diagnostic>,
+}
+
+fn analyze_semantic_project(
+    project_root: PathBuf,
+    source_roots: Vec<PathBuf>,
+    target_python: Option<PythonVersion>,
+) -> Result<SemanticDebugData, Diagnostic> {
     let project = discover_project(DiscoveryOptions {
-        project_root: options.project_root,
-        explicit_source_roots: options.source_roots,
-        target_python: options.target_python,
+        project_root,
+        explicit_source_roots: source_roots,
+        target_python,
     })
     .map_err(|error| Diagnostic::error("CULL_P0000", error.to_string()))?;
 
@@ -165,7 +250,10 @@ pub fn analyze_debug_bindings(
         };
 
         match parse_ruff_module(input) {
-            Ok(parsed) => collect_module_bindings(&mut builder, input, &parsed),
+            Ok(parsed) => {
+                collect_module_semantics(&mut builder, &mut diagnostics, input, &parsed);
+                analyze_module_flow(&mut builder, input.module_id, &parsed);
+            }
             Err(mut parse_diagnostics) => diagnostics.append(&mut parse_diagnostics),
         }
     }
@@ -184,29 +272,26 @@ pub fn analyze_debug_bindings(
     });
 
     let graph = builder.finish();
-    Ok(DebugBindingsOutput {
-        schema_version: 1,
+    Ok(SemanticDebugData {
         target_python: project.target_python,
         project_root: crate::paths::slash_path(&project.project_root),
         source_roots: project.source_root_output(),
-        modules: graph
-            .modules
-            .into_iter()
-            .map(|module| DebugBindingModule {
-                id: module.id,
-                file: module.file,
-                name: module.name,
-                path: module.path,
-                future_annotations: module.future_annotations,
-                scope: module.scope,
-                context: module.context,
-            })
-            .collect(),
-        scopes: graph.scopes,
-        contexts: graph.contexts,
-        symbols: graph.symbols,
-        bindings: graph.bindings,
-        definitions: graph.definitions,
+        graph,
         diagnostics,
     })
+}
+
+fn debug_modules(modules: Vec<cull_core::SemanticModule>) -> Vec<DebugBindingModule> {
+    modules
+        .into_iter()
+        .map(|module| DebugBindingModule {
+            id: module.id,
+            file: module.file,
+            name: module.name,
+            path: module.path,
+            future_annotations: module.future_annotations,
+            scope: module.scope,
+            context: module.context,
+        })
+        .collect()
 }

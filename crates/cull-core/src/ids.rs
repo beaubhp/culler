@@ -27,4 +27,6 @@ id_type!(ContextId);
 id_type!(SymbolId);
 id_type!(BindingId);
 id_type!(BindingSetId);
+id_type!(FlowUncertaintySetId);
 id_type!(ReferenceId);
+id_type!(LoopId);

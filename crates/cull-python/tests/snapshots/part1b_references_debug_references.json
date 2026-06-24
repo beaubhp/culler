@@ -1,0 +1,1800 @@
+{
+  "schema_version": 1,
+  "target_python": {
+    "major": 3,
+    "minor": 14
+  },
+  "project_root": "<PROJECT_ROOT>",
+  "source_roots": [
+    {
+      "path": "src",
+      "kind": "tool-cull"
+    }
+  ],
+  "modules": [
+    {
+      "id": 0,
+      "file": 0,
+      "name": "pkg",
+      "path": "src/pkg/__init__.py",
+      "future_annotations": false,
+      "scope": 0,
+      "context": 0
+    },
+    {
+      "id": 1,
+      "file": 1,
+      "name": "pkg.refs",
+      "path": "src/pkg/refs.py",
+      "future_annotations": false,
+      "scope": 1,
+      "context": 1
+    }
+  ],
+  "scopes": [
+    {
+      "id": 0,
+      "module": 0,
+      "kind": "module",
+      "context": 0,
+      "name": "pkg",
+      "range": {
+        "start": 0,
+        "end": 30
+      }
+    },
+    {
+      "id": 1,
+      "module": 1,
+      "kind": "module",
+      "context": 1,
+      "name": "pkg.refs",
+      "range": {
+        "start": 0,
+        "end": 592
+      }
+    },
+    {
+      "id": 2,
+      "module": 1,
+      "kind": "function",
+      "parent": 1,
+      "context": 2,
+      "owner_definition": 0,
+      "name": "pkg.refs::with_default",
+      "range": {
+        "start": 144,
+        "end": 249
+      }
+    },
+    {
+      "id": 3,
+      "module": 1,
+      "kind": "class",
+      "parent": 1,
+      "context": 3,
+      "owner_definition": 1,
+      "name": "pkg.refs::ContextCase",
+      "range": {
+        "start": 263,
+        "end": 536
+      }
+    },
+    {
+      "id": 4,
+      "module": 1,
+      "kind": "comprehension",
+      "parent": 1,
+      "context": 4,
+      "name": "pkg.refs::ContextCase::<comp@378>",
+      "range": {
+        "start": 378,
+        "end": 399
+      }
+    },
+    {
+      "id": 5,
+      "module": 1,
+      "kind": "comprehension",
+      "parent": 1,
+      "context": 5,
+      "name": "pkg.refs::ContextCase::<comp@423>",
+      "range": {
+        "start": 423,
+        "end": 444
+      }
+    },
+    {
+      "id": 6,
+      "module": 1,
+      "kind": "function",
+      "parent": 1,
+      "context": 6,
+      "owner_definition": 2,
+      "name": "pkg.refs::ContextCase.method",
+      "range": {
+        "start": 480,
+        "end": 536
+      }
+    },
+    {
+      "id": 7,
+      "module": 1,
+      "kind": "lambda",
+      "parent": 1,
+      "context": 7,
+      "name": "pkg.refs::<lambda@555>",
+      "range": {
+        "start": 555,
+        "end": 587
+      }
+    }
+  ],
+  "contexts": [
+    {
+      "id": 0,
+      "module": 0,
+      "kind": "module_body",
+      "scope": 0,
+      "range": {
+        "start": 0,
+        "end": 30
+      }
+    },
+    {
+      "id": 1,
+      "module": 1,
+      "kind": "module_body",
+      "scope": 1,
+      "range": {
+        "start": 0,
+        "end": 592
+      }
+    },
+    {
+      "id": 2,
+      "module": 1,
+      "kind": "function_body",
+      "scope": 2,
+      "parent": 1,
+      "owner_definition": 0,
+      "range": {
+        "start": 144,
+        "end": 249
+      }
+    },
+    {
+      "id": 3,
+      "module": 1,
+      "kind": "class_body",
+      "scope": 3,
+      "parent": 1,
+      "owner_definition": 1,
+      "range": {
+        "start": 263,
+        "end": 536
+      }
+    },
+    {
+      "id": 4,
+      "module": 1,
+      "kind": "comprehension_body",
+      "scope": 4,
+      "parent": 3,
+      "range": {
+        "start": 378,
+        "end": 399
+      }
+    },
+    {
+      "id": 5,
+      "module": 1,
+      "kind": "comprehension_body",
+      "scope": 5,
+      "parent": 3,
+      "range": {
+        "start": 423,
+        "end": 444
+      }
+    },
+    {
+      "id": 6,
+      "module": 1,
+      "kind": "function_body",
+      "scope": 6,
+      "parent": 3,
+      "owner_definition": 2,
+      "range": {
+        "start": 480,
+        "end": 536
+      }
+    },
+    {
+      "id": 7,
+      "module": 1,
+      "kind": "lambda_body",
+      "scope": 7,
+      "parent": 1,
+      "range": {
+        "start": 555,
+        "end": 587
+      }
+    }
+  ],
+  "symbols": [
+    {
+      "id": 0,
+      "module": 0,
+      "scope": 0,
+      "name": "ContextCase"
+    },
+    {
+      "id": 1,
+      "module": 1,
+      "scope": 1,
+      "name": "ContextCase"
+    },
+    {
+      "id": 2,
+      "module": 1,
+      "scope": 1,
+      "name": "base_type"
+    },
+    {
+      "id": 3,
+      "module": 1,
+      "scope": 1,
+      "name": "decorator"
+    },
+    {
+      "id": 4,
+      "module": 1,
+      "scope": 1,
+      "name": "default_value"
+    },
+    {
+      "id": 5,
+      "module": 1,
+      "scope": 1,
+      "name": "lambda_value"
+    },
+    {
+      "id": 6,
+      "module": 1,
+      "scope": 1,
+      "name": "meta_type"
+    },
+    {
+      "id": 7,
+      "module": 1,
+      "scope": 1,
+      "name": "module_value"
+    },
+    {
+      "id": 8,
+      "module": 1,
+      "scope": 1,
+      "name": "with_default"
+    },
+    {
+      "id": 9,
+      "module": 1,
+      "scope": 1,
+      "name": "x"
+    },
+    {
+      "id": 10,
+      "module": 1,
+      "scope": 1,
+      "name": "xs"
+    },
+    {
+      "id": 11,
+      "module": 1,
+      "scope": 1,
+      "name": "make_decorator"
+    },
+    {
+      "id": 12,
+      "module": 1,
+      "scope": 1,
+      "name": "object"
+    },
+    {
+      "id": 13,
+      "module": 1,
+      "scope": 1,
+      "name": "type"
+    },
+    {
+      "id": 14,
+      "module": 1,
+      "scope": 2,
+      "name": "local"
+    },
+    {
+      "id": 15,
+      "module": 1,
+      "scope": 2,
+      "name": "value"
+    },
+    {
+      "id": 16,
+      "module": 1,
+      "scope": 1,
+      "name": "missing_global"
+    },
+    {
+      "id": 17,
+      "module": 1,
+      "scope": 3,
+      "name": "_ContextCase__private"
+    },
+    {
+      "id": 18,
+      "module": 1,
+      "scope": 3,
+      "name": "class_private"
+    },
+    {
+      "id": 19,
+      "module": 1,
+      "scope": 3,
+      "name": "class_value"
+    },
+    {
+      "id": 20,
+      "module": 1,
+      "scope": 3,
+      "name": "leftmost"
+    },
+    {
+      "id": 21,
+      "module": 1,
+      "scope": 3,
+      "name": "method"
+    },
+    {
+      "id": 22,
+      "module": 1,
+      "scope": 3,
+      "name": "no_class_capture"
+    },
+    {
+      "id": 23,
+      "module": 1,
+      "scope": 3,
+      "name": "x"
+    },
+    {
+      "id": 24,
+      "module": 1,
+      "scope": 3,
+      "name": "module_value"
+    },
+    {
+      "id": 25,
+      "module": 1,
+      "scope": 3,
+      "name": "xs"
+    },
+    {
+      "id": 26,
+      "module": 1,
+      "scope": 4,
+      "name": "item"
+    },
+    {
+      "id": 27,
+      "module": 1,
+      "scope": 3,
+      "name": "range"
+    },
+    {
+      "id": 28,
+      "module": 1,
+      "scope": 1,
+      "name": "range"
+    },
+    {
+      "id": 29,
+      "module": 1,
+      "scope": 5,
+      "name": "_"
+    },
+    {
+      "id": 30,
+      "module": 1,
+      "scope": 1,
+      "name": "_ContextCase__private"
+    },
+    {
+      "id": 31,
+      "module": 1,
+      "scope": 6,
+      "name": "self"
+    },
+    {
+      "id": 32,
+      "module": 1,
+      "scope": 1,
+      "name": "class_value"
+    },
+    {
+      "id": 33,
+      "module": 1,
+      "scope": 7,
+      "name": "item"
+    }
+  ],
+  "bindings": [
+    {
+      "id": 0,
+      "module": 0,
+      "scope": 0,
+      "symbol": 0,
+      "kind": "import_from",
+      "name": "ContextCase",
+      "order": 0,
+      "range": {
+        "start": 18,
+        "end": 29
+      },
+      "name_range": {
+        "start": 18,
+        "end": 29
+      }
+    },
+    {
+      "id": 1,
+      "module": 1,
+      "scope": 1,
+      "symbol": 3,
+      "kind": "assignment",
+      "name": "decorator",
+      "order": 0,
+      "range": {
+        "start": 0,
+        "end": 9
+      },
+      "name_range": {
+        "start": 0,
+        "end": 9
+      }
+    },
+    {
+      "id": 2,
+      "module": 1,
+      "scope": 1,
+      "symbol": 4,
+      "kind": "assignment",
+      "name": "default_value",
+      "order": 1,
+      "range": {
+        "start": 29,
+        "end": 42
+      },
+      "name_range": {
+        "start": 29,
+        "end": 42
+      }
+    },
+    {
+      "id": 3,
+      "module": 1,
+      "scope": 1,
+      "symbol": 2,
+      "kind": "assignment",
+      "name": "base_type",
+      "order": 2,
+      "range": {
+        "start": 54,
+        "end": 63
+      },
+      "name_range": {
+        "start": 54,
+        "end": 63
+      }
+    },
+    {
+      "id": 4,
+      "module": 1,
+      "scope": 1,
+      "symbol": 6,
+      "kind": "assignment",
+      "name": "meta_type",
+      "order": 3,
+      "range": {
+        "start": 75,
+        "end": 84
+      },
+      "name_range": {
+        "start": 75,
+        "end": 84
+      }
+    },
+    {
+      "id": 5,
+      "module": 1,
+      "scope": 1,
+      "symbol": 7,
+      "kind": "assignment",
+      "name": "module_value",
+      "order": 4,
+      "range": {
+        "start": 92,
+        "end": 104
+      },
+      "name_range": {
+        "start": 92,
+        "end": 104
+      }
+    },
+    {
+      "id": 6,
+      "module": 1,
+      "scope": 1,
+      "symbol": 10,
+      "kind": "assignment",
+      "name": "xs",
+      "order": 5,
+      "range": {
+        "start": 109,
+        "end": 111
+      },
+      "name_range": {
+        "start": 109,
+        "end": 111
+      }
+    },
+    {
+      "id": 7,
+      "module": 1,
+      "scope": 1,
+      "symbol": 9,
+      "kind": "assignment",
+      "name": "x",
+      "order": 6,
+      "range": {
+        "start": 124,
+        "end": 125
+      },
+      "name_range": {
+        "start": 124,
+        "end": 125
+      }
+    },
+    {
+      "id": 8,
+      "module": 1,
+      "scope": 1,
+      "symbol": 8,
+      "kind": "function_definition",
+      "name": "with_default",
+      "order": 7,
+      "range": {
+        "start": 144,
+        "end": 249
+      },
+      "name_range": {
+        "start": 148,
+        "end": 160
+      },
+      "definition": 0
+    },
+    {
+      "id": 9,
+      "module": 1,
+      "scope": 2,
+      "symbol": 15,
+      "kind": "parameter",
+      "name": "value",
+      "order": 8,
+      "range": {
+        "start": 161,
+        "end": 166
+      },
+      "name_range": {
+        "start": 161,
+        "end": 166
+      }
+    },
+    {
+      "id": 10,
+      "module": 1,
+      "scope": 2,
+      "symbol": 14,
+      "kind": "assignment",
+      "name": "local",
+      "order": 9,
+      "range": {
+        "start": 187,
+        "end": 192
+      },
+      "name_range": {
+        "start": 187,
+        "end": 192
+      }
+    },
+    {
+      "id": 11,
+      "module": 1,
+      "scope": 1,
+      "symbol": 1,
+      "kind": "class_definition",
+      "name": "ContextCase",
+      "order": 10,
+      "range": {
+        "start": 263,
+        "end": 536
+      },
+      "name_range": {
+        "start": 269,
+        "end": 280
+      },
+      "definition": 1
+    },
+    {
+      "id": 12,
+      "module": 1,
+      "scope": 3,
+      "symbol": 17,
+      "kind": "assignment",
+      "name": "_ContextCase__private",
+      "order": 11,
+      "range": {
+        "start": 318,
+        "end": 327
+      },
+      "name_range": {
+        "start": 318,
+        "end": 327
+      }
+    },
+    {
+      "id": 13,
+      "module": 1,
+      "scope": 3,
+      "symbol": 19,
+      "kind": "assignment",
+      "name": "class_value",
+      "order": 12,
+      "range": {
+        "start": 336,
+        "end": 347
+      },
+      "name_range": {
+        "start": 336,
+        "end": 347
+      }
+    },
+    {
+      "id": 14,
+      "module": 1,
+      "scope": 4,
+      "symbol": 26,
+      "kind": "for_target",
+      "name": "item",
+      "order": 13,
+      "range": {
+        "start": 388,
+        "end": 392
+      },
+      "name_range": {
+        "start": 388,
+        "end": 392
+      }
+    },
+    {
+      "id": 15,
+      "module": 1,
+      "scope": 3,
+      "symbol": 20,
+      "kind": "assignment",
+      "name": "leftmost",
+      "order": 14,
+      "range": {
+        "start": 367,
+        "end": 375
+      },
+      "name_range": {
+        "start": 367,
+        "end": 375
+      }
+    },
+    {
+      "id": 16,
+      "module": 1,
+      "scope": 5,
+      "symbol": 29,
+      "kind": "for_target",
+      "name": "_",
+      "order": 15,
+      "range": {
+        "start": 430,
+        "end": 431
+      },
+      "name_range": {
+        "start": 430,
+        "end": 431
+      }
+    },
+    {
+      "id": 17,
+      "module": 1,
+      "scope": 3,
+      "symbol": 22,
+      "kind": "assignment",
+      "name": "no_class_capture",
+      "order": 16,
+      "range": {
+        "start": 404,
+        "end": 420
+      },
+      "name_range": {
+        "start": 404,
+        "end": 420
+      }
+    },
+    {
+      "id": 18,
+      "module": 1,
+      "scope": 3,
+      "symbol": 18,
+      "kind": "assignment",
+      "name": "class_private",
+      "order": 17,
+      "range": {
+        "start": 449,
+        "end": 462
+      },
+      "name_range": {
+        "start": 449,
+        "end": 462
+      }
+    },
+    {
+      "id": 19,
+      "module": 1,
+      "scope": 3,
+      "symbol": 21,
+      "kind": "function_definition",
+      "name": "method",
+      "order": 18,
+      "range": {
+        "start": 480,
+        "end": 536
+      },
+      "name_range": {
+        "start": 484,
+        "end": 490
+      },
+      "definition": 2
+    },
+    {
+      "id": 20,
+      "module": 1,
+      "scope": 6,
+      "symbol": 31,
+      "kind": "parameter",
+      "name": "self",
+      "order": 19,
+      "range": {
+        "start": 491,
+        "end": 495
+      },
+      "name_range": {
+        "start": 491,
+        "end": 495
+      }
+    },
+    {
+      "id": 21,
+      "module": 1,
+      "scope": 7,
+      "symbol": 33,
+      "kind": "parameter",
+      "name": "item",
+      "order": 20,
+      "range": {
+        "start": 562,
+        "end": 566
+      },
+      "name_range": {
+        "start": 562,
+        "end": 566
+      }
+    },
+    {
+      "id": 22,
+      "module": 1,
+      "scope": 1,
+      "symbol": 5,
+      "kind": "assignment",
+      "name": "lambda_value",
+      "order": 21,
+      "range": {
+        "start": 539,
+        "end": 551
+      },
+      "name_range": {
+        "start": 539,
+        "end": 551
+      }
+    }
+  ],
+  "binding_sets": [
+    {
+      "id": 0,
+      "bindings": []
+    },
+    {
+      "id": 1,
+      "bindings": [
+        1
+      ]
+    },
+    {
+      "id": 2,
+      "bindings": [
+        2
+      ]
+    },
+    {
+      "id": 3,
+      "bindings": [
+        9
+      ]
+    },
+    {
+      "id": 4,
+      "bindings": [
+        10
+      ]
+    },
+    {
+      "id": 5,
+      "bindings": [
+        3
+      ]
+    },
+    {
+      "id": 6,
+      "bindings": [
+        4
+      ]
+    },
+    {
+      "id": 7,
+      "bindings": [
+        7
+      ]
+    },
+    {
+      "id": 8,
+      "bindings": [
+        5
+      ]
+    },
+    {
+      "id": 9,
+      "bindings": [
+        6
+      ]
+    },
+    {
+      "id": 10,
+      "bindings": [
+        14
+      ]
+    },
+    {
+      "id": 11,
+      "bindings": [
+        12
+      ]
+    },
+    {
+      "id": 12,
+      "bindings": [
+        21
+      ]
+    }
+  ],
+  "flow_uncertainty_sets": [
+    {
+      "id": 0,
+      "uncertainties": []
+    },
+    {
+      "id": 1,
+      "uncertainties": [
+        "opaque_call_may_mutate_global"
+      ]
+    }
+  ],
+  "definitions": [
+    {
+      "id": 0,
+      "module": 1,
+      "binding": 8,
+      "scope": 2,
+      "context": 2,
+      "kind": "function",
+      "name": "with_default",
+      "qualified_name": "pkg.refs::with_default",
+      "range": {
+        "start": 144,
+        "end": 249
+      },
+      "name_range": {
+        "start": 148,
+        "end": 160
+      },
+      "reportable": true,
+      "is_async": false
+    },
+    {
+      "id": 1,
+      "module": 1,
+      "binding": 11,
+      "scope": 3,
+      "context": 3,
+      "kind": "class",
+      "name": "ContextCase",
+      "qualified_name": "pkg.refs::ContextCase",
+      "range": {
+        "start": 263,
+        "end": 536
+      },
+      "name_range": {
+        "start": 269,
+        "end": 280
+      },
+      "reportable": true,
+      "is_async": false
+    },
+    {
+      "id": 2,
+      "module": 1,
+      "binding": 19,
+      "scope": 6,
+      "context": 6,
+      "kind": "function",
+      "name": "method",
+      "qualified_name": "pkg.refs::ContextCase.method",
+      "range": {
+        "start": 480,
+        "end": 536
+      },
+      "name_range": {
+        "start": 484,
+        "end": 490
+      },
+      "reportable": false,
+      "is_async": false
+    }
+  ],
+  "references": [
+    {
+      "id": 0,
+      "module": 1,
+      "source_scope": 1,
+      "source_context": 1,
+      "source_spelling": "make_decorator",
+      "semantic_name": "make_decorator",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 11
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 11
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "builtin_or_name_error",
+          "uncertainty": 0
+        }
+      },
+      "phase": "definition_time",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 12,
+        "end": 26
+      }
+    },
+    {
+      "id": 1,
+      "module": 1,
+      "source_scope": 1,
+      "source_context": 1,
+      "source_spelling": "object",
+      "semantic_name": "object",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 12
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 12
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "definition_time",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 45,
+        "end": 51
+      }
+    },
+    {
+      "id": 2,
+      "module": 1,
+      "source_scope": 1,
+      "source_context": 1,
+      "source_spelling": "object",
+      "semantic_name": "object",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 12
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 12
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "definition_time",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 66,
+        "end": 72
+      }
+    },
+    {
+      "id": 3,
+      "module": 1,
+      "source_scope": 1,
+      "source_context": 1,
+      "source_spelling": "type",
+      "semantic_name": "type",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 13
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 13
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "definition_time",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 87,
+        "end": 91
+      }
+    },
+    {
+      "id": 4,
+      "module": 1,
+      "source_scope": 1,
+      "source_context": 1,
+      "source_spelling": "decorator",
+      "semantic_name": "decorator",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 3
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 3
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 1,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "definition_time",
+      "role": "decorator",
+      "origin_domain": "production",
+      "span": {
+        "start": 134,
+        "end": 143
+      }
+    },
+    {
+      "id": 5,
+      "module": 1,
+      "source_scope": 1,
+      "source_context": 1,
+      "source_spelling": "default_value",
+      "semantic_name": "default_value",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 4
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 4
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 2,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "definition_time",
+      "role": "default_value",
+      "origin_domain": "production",
+      "span": {
+        "start": 167,
+        "end": 180
+      }
+    },
+    {
+      "id": 6,
+      "module": 1,
+      "source_scope": 2,
+      "source_context": 2,
+      "source_spelling": "value",
+      "semantic_name": "value",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 15
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 3,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 195,
+        "end": 200
+      }
+    },
+    {
+      "id": 7,
+      "module": 1,
+      "source_scope": 2,
+      "source_context": 2,
+      "source_spelling": "module_value",
+      "semantic_name": "module_value",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 7
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 7
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 212,
+        "end": 224
+      }
+    },
+    {
+      "id": 8,
+      "module": 1,
+      "source_scope": 2,
+      "source_context": 2,
+      "source_spelling": "local",
+      "semantic_name": "local",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 14
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 4,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 227,
+        "end": 232
+      }
+    },
+    {
+      "id": 9,
+      "module": 1,
+      "source_scope": 2,
+      "source_context": 2,
+      "source_spelling": "missing_global",
+      "semantic_name": "missing_global",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 16
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 16
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 235,
+        "end": 249
+      }
+    },
+    {
+      "id": 10,
+      "module": 1,
+      "source_scope": 1,
+      "source_context": 1,
+      "source_spelling": "decorator",
+      "semantic_name": "decorator",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 3
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 3
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 1,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "definition_time",
+      "role": "decorator",
+      "origin_domain": "production",
+      "span": {
+        "start": 253,
+        "end": 262
+      }
+    },
+    {
+      "id": 11,
+      "module": 1,
+      "source_scope": 1,
+      "source_context": 1,
+      "source_spelling": "base_type",
+      "semantic_name": "base_type",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 2
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 2
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 5,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "definition_time",
+      "role": "base_class",
+      "origin_domain": "production",
+      "span": {
+        "start": 281,
+        "end": 290
+      }
+    },
+    {
+      "id": 12,
+      "module": 1,
+      "source_scope": 1,
+      "source_context": 1,
+      "source_spelling": "meta_type",
+      "semantic_name": "meta_type",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 6
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 6
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 6,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "definition_time",
+      "role": "class_keyword",
+      "origin_domain": "production",
+      "span": {
+        "start": 302,
+        "end": 311
+      }
+    },
+    {
+      "id": 13,
+      "module": 1,
+      "source_scope": 3,
+      "source_context": 3,
+      "source_spelling": "x",
+      "semantic_name": "x",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 23
+      },
+      "lookup": {
+        "kind": "class_local_then_global_then_builtin",
+        "class_symbol": 23,
+        "global_symbol": 9
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 7,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "definition_time",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 330,
+        "end": 331
+      }
+    },
+    {
+      "id": 14,
+      "module": 1,
+      "source_scope": 3,
+      "source_context": 3,
+      "source_spelling": "module_value",
+      "semantic_name": "module_value",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 24
+      },
+      "lookup": {
+        "kind": "class_local_then_global_then_builtin",
+        "class_symbol": 24,
+        "global_symbol": 7
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 8,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "definition_time",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 350,
+        "end": 362
+      }
+    },
+    {
+      "id": 15,
+      "module": 1,
+      "source_scope": 3,
+      "source_context": 3,
+      "source_spelling": "xs",
+      "semantic_name": "xs",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 25
+      },
+      "lookup": {
+        "kind": "class_local_then_global_then_builtin",
+        "class_symbol": 25,
+        "global_symbol": 10
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 9,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "definition_time",
+      "role": "comprehension_iterable",
+      "origin_domain": "production",
+      "span": {
+        "start": 396,
+        "end": 398
+      }
+    },
+    {
+      "id": 16,
+      "module": 1,
+      "source_scope": 4,
+      "source_context": 4,
+      "source_spelling": "item",
+      "semantic_name": "item",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 26
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 10,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 379,
+        "end": 383
+      }
+    },
+    {
+      "id": 17,
+      "module": 1,
+      "source_scope": 3,
+      "source_context": 3,
+      "source_spelling": "range",
+      "semantic_name": "range",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 27
+      },
+      "lookup": {
+        "kind": "class_local_then_global_then_builtin",
+        "class_symbol": 27,
+        "global_symbol": 28
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "definition_time",
+      "role": "comprehension_iterable",
+      "origin_domain": "production",
+      "span": {
+        "start": 435,
+        "end": 440
+      }
+    },
+    {
+      "id": 18,
+      "module": 1,
+      "source_scope": 5,
+      "source_context": 5,
+      "source_spelling": "x",
+      "semantic_name": "x",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 9
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 9
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 7,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 1
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 424,
+        "end": 425
+      }
+    },
+    {
+      "id": 19,
+      "module": 1,
+      "source_scope": 3,
+      "source_context": 3,
+      "source_spelling": "__private",
+      "semantic_name": "_ContextCase__private",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 17
+      },
+      "lookup": {
+        "kind": "class_local_then_global_then_builtin",
+        "class_symbol": 17,
+        "global_symbol": 30
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 11,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "definition_time",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 465,
+        "end": 474
+      }
+    },
+    {
+      "id": 20,
+      "module": 1,
+      "source_scope": 6,
+      "source_context": 6,
+      "source_spelling": "__private",
+      "semantic_name": "_ContextCase__private",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 30
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 30
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 513,
+        "end": 522
+      }
+    },
+    {
+      "id": 21,
+      "module": 1,
+      "source_scope": 6,
+      "source_context": 6,
+      "source_spelling": "class_value",
+      "semantic_name": "class_value",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 32
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 32
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 525,
+        "end": 536
+      }
+    },
+    {
+      "id": 22,
+      "module": 1,
+      "source_scope": 7,
+      "source_context": 7,
+      "source_spelling": "item",
+      "semantic_name": "item",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 33
+      },
+      "lookup": {
+        "kind": "direct"
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 12,
+          "residual": "none",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 568,
+        "end": 572
+      }
+    },
+    {
+      "id": 23,
+      "module": 1,
+      "source_scope": 7,
+      "source_context": 7,
+      "source_spelling": "module_value",
+      "semantic_name": "module_value",
+      "lexical_target": {
+        "state": "resolved",
+        "value": 7
+      },
+      "lookup": {
+        "kind": "global_then_builtin",
+        "global_symbol": 7
+      },
+      "binding_state": {
+        "state": "analyzed",
+        "value": {
+          "reachability": "may_execute",
+          "bindings": 0,
+          "residual": "runtime_global_then_builtin",
+          "uncertainty": 0
+        }
+      },
+      "phase": "body_runtime",
+      "role": "value",
+      "origin_domain": "production",
+      "span": {
+        "start": 575,
+        "end": 587
+      }
+    }
+  ],
+  "context_flow_statuses": [
+    {
+      "context": 0,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 1,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 2,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 3,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 4,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 5,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 6,
+      "status": {
+        "status": "complete"
+      }
+    },
+    {
+      "context": 7,
+      "status": {
+        "status": "complete"
+      }
+    }
+  ],
+  "diagnostics": []
+}
