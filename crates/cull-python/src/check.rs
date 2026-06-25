@@ -3,40 +3,103 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::{
     analysis::{ParsedProjectModule, SemanticProjectData},
     discovery::DiscoveredProject,
-    module_namespace::{
-        has_module_getattr, is_package_module, LocalModuleResolution, ModuleNamespaceIndex,
-    },
+    module_namespace::{is_package_module, LocalModuleResolution, ModuleNamespaceIndex},
     ruff_frontend::to_range,
 };
 use cull_core::{
-    BindingFact, BindingId, BindingKind, CheckOutput, CheckSummary, DefId, DefinitionEffectKind,
-    DefinitionKind, DefinitionSurface, Diagnostic, DiagnosticSeverity, Finding, FindingConfidence,
-    FindingDefinition, FindingExportKind, FindingModeEffect, FindingOriginSummary,
-    FindingReachability, FindingReachabilityStatus, FindingReferenceKind, FindingRemovalRisk,
-    FindingRule, FindingType, FindingUncertainty, FindingUncertaintyKind, LocalReachability,
-    ModuleId, OriginDomain, ProjectMode, ReachabilityDomain, ReferenceFact, ReferencePhase,
-    RemovalRisk, RootCoverage, RootId, RootInvocation, RootKind, RootOutput, SemanticDefinition,
-    SemanticGraph, TextRange,
+    BindingFact, BindingId, BindingKind, Candidate, CandidateStatus, CheckAnalysis, CheckOutput,
+    CheckSummary, DefId, DefinitionEffectKind, DefinitionKind, DefinitionSurface, Diagnostic,
+    DiagnosticSeverity, EvidenceKind, EvidenceRecord, Finding, FindingBlocker, FindingBlockerKind,
+    FindingConfidence, FindingDefinition, FindingExportKind, FindingModeEffect,
+    FindingOriginSummary, FindingReachability, FindingReachabilityStatus, FindingReferenceKind,
+    FindingRemovalRisk, FindingRule, FindingType, FindingUncertainty, FindingUncertaintyKind,
+    LocalReachability, ModuleId, OriginDomain, ProjectCompleteness, ProjectMode,
+    ReachabilityDomain, ReferenceFact, ReferencePhase, RemovalRisk, RootCoverage, RootId,
+    RootInvocation, RootKind, RootOutput, SecondaryCondition, SemanticDefinition, SemanticGraph,
+    SuppressionReason, SuppressionReasonKind, TextRange, UncertaintyEffect, UncertaintyRegion,
 };
+use data_encoding::BASE32_NOPAD;
 use ruff_python_ast::{
     Arguments, CmpOp, Expr, ExprAttribute, ExprCall, ExprContext, ExprName, ModModule, Stmt,
     StmtAssign, StmtAugAssign, StmtDelete, StmtImport, StmtImportFrom,
 };
 
-pub(crate) fn analyze_part2(
+const CHECK_SCHEMA_VERSION: u32 = 2;
+
+fn check_analysis(
+    mode: ProjectMode,
+    target_python: cull_core::PythonVersion,
+    root_coverage: RootCoverage,
+) -> CheckAnalysis {
+    CheckAnalysis {
+        mode,
+        target_python,
+        root_coverage,
+    }
+}
+
+fn apply_partial_analysis_policy(
+    diagnostics: &mut Vec<Diagnostic>,
+    project_completeness: &ProjectCompleteness,
+    allow_partial: bool,
+) {
+    if !allow_partial
+        || project_completeness.status != cull_core::ProjectCompletenessStatus::Partial
+    {
+        return;
+    }
+
+    let skipped = project_completeness
+        .skipped_files
+        .iter()
+        .map(|file| (file.path.as_str(), file.diagnostic_code.as_str()))
+        .collect::<BTreeSet<_>>();
+    for diagnostic in diagnostics.iter_mut() {
+        let Some(path) = diagnostic.path.as_deref() else {
+            continue;
+        };
+        if skipped.contains(&(path, diagnostic.code.as_str()))
+            || is_skippable_file_error(diagnostic)
+        {
+            diagnostic.severity = DiagnosticSeverity::Warning;
+        }
+    }
+    diagnostics.push(Diagnostic::warning(
+        "CULL_P0400",
+        format!(
+            "partial project analysis skipped {} included source file(s); high-confidence findings are capped at Review",
+            project_completeness.skipped_files.len()
+        ),
+    ));
+}
+
+fn is_skippable_file_error(diagnostic: &Diagnostic) -> bool {
+    matches!(
+        diagnostic.code.as_str(),
+        "CULL_P0100" | "CULL_P0101" | "CULL_P0200" | "CULL_P0201" | "CULL_P0202"
+    )
+}
+
+pub(crate) fn analyze_project(
     data: SemanticProjectData,
     mode_override: Option<ProjectMode>,
+    allow_partial_override: bool,
 ) -> CheckOutput {
     let mode = mode_override.unwrap_or(data.project.mode);
+    let allow_partial = allow_partial_override || data.project.allow_partial;
     let mut diagnostics = data.diagnostics;
     let mut namespace = ModuleNamespaceIndex::build(&data.project);
+    let project_completeness = data.project_completeness;
+    apply_partial_analysis_policy(&mut diagnostics, &project_completeness, allow_partial);
 
     if diagnostics
         .iter()
         .any(|diagnostic| diagnostic.severity == DiagnosticSeverity::Error)
     {
         return CheckOutput {
-            schema_version: 1,
+            schema_version: CHECK_SCHEMA_VERSION,
+            analysis: check_analysis(mode, data.project.target_python, RootCoverage::Absent),
+            project_completeness,
             target_python: data.project.target_python,
             project_root: crate::paths::slash_path(&data.project.project_root),
             source_roots: data.project.source_root_output(),
@@ -74,7 +137,9 @@ pub(crate) fn analyze_part2(
     {
         diagnostics.sort_by(compare_diagnostics);
         return CheckOutput {
-            schema_version: 1,
+            schema_version: CHECK_SCHEMA_VERSION,
+            analysis: check_analysis(mode, data.project.target_python, reachability.root_coverage),
+            project_completeness,
             target_python: data.project.target_python,
             project_root: crate::paths::slash_path(&data.project.project_root),
             source_roots: data.project.source_root_output(),
@@ -93,12 +158,15 @@ pub(crate) fn analyze_part2(
         &resolver,
         &reachability,
         mode,
+        &project_completeness,
     );
     let summary = summarize_findings(&findings);
     diagnostics.sort_by(compare_diagnostics);
 
     CheckOutput {
-        schema_version: 1,
+        schema_version: CHECK_SCHEMA_VERSION,
+        analysis: check_analysis(mode, data.project.target_python, reachability.root_coverage),
+        project_completeness,
         target_python: data.project.target_python,
         project_root: crate::paths::slash_path(&data.project.project_root),
         source_roots: data.project.source_root_output(),
@@ -335,6 +403,8 @@ impl ValueSet {
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 enum Part2Uncertainty {
+    DynamicAttributeRead,
+    DynamicExecution,
     DynamicExport,
     DynamicImport,
     DynamicModuleAttribute,
@@ -342,13 +412,17 @@ enum Part2Uncertainty {
     ImportResolution,
     ModuleGetattr,
     NamespaceOrder,
+    NamespaceMutation,
     PartialInitialization,
+    RuntimeAnnotationIntrospection,
     UnsupportedNamespace,
 }
 
 impl Part2Uncertainty {
     fn output_kind(self) -> FindingUncertaintyKind {
         match self {
+            Self::DynamicAttributeRead => FindingUncertaintyKind::DynamicAttributeRead,
+            Self::DynamicExecution => FindingUncertaintyKind::DynamicExecution,
             Self::DynamicExport => FindingUncertaintyKind::DynamicExport,
             Self::DynamicImport => FindingUncertaintyKind::DynamicImport,
             Self::DynamicModuleAttribute => FindingUncertaintyKind::DynamicModuleAttribute,
@@ -356,13 +430,23 @@ impl Part2Uncertainty {
             Self::ImportResolution => FindingUncertaintyKind::ImportResolution,
             Self::ModuleGetattr => FindingUncertaintyKind::ModuleGetattr,
             Self::NamespaceOrder => FindingUncertaintyKind::NamespaceOrder,
+            Self::NamespaceMutation => FindingUncertaintyKind::NamespaceMutation,
             Self::PartialInitialization => FindingUncertaintyKind::PartialInitialization,
+            Self::RuntimeAnnotationIntrospection => {
+                FindingUncertaintyKind::RuntimeAnnotationIntrospection
+            }
             Self::UnsupportedNamespace => FindingUncertaintyKind::UnsupportedNamespace,
         }
     }
 
     fn detail(self) -> &'static str {
         match self {
+            Self::DynamicAttributeRead => {
+                "dynamic attribute read may reference unknown names in a known namespace"
+            }
+            Self::DynamicExecution => {
+                "dynamic code execution may introduce references in this module"
+            }
             Self::DynamicExport => "dynamic export surface may hide references",
             Self::DynamicImport => "dynamic import target is not statically known",
             Self::DynamicModuleAttribute => {
@@ -374,10 +458,55 @@ impl Part2Uncertainty {
             Self::ImportResolution => "import resolution is unresolved or unsupported",
             Self::ModuleGetattr => "module __getattr__ may synthesize missing attributes",
             Self::NamespaceOrder => "package attribute order could not be proven",
+            Self::NamespaceMutation => {
+                "dynamic namespace mutation may add, replace, or delete attributes"
+            }
             Self::PartialInitialization => {
                 "circular import may observe a partially initialized module"
             }
+            Self::RuntimeAnnotationIntrospection => {
+                "runtime annotation introspection may evaluate deferred annotation references"
+            }
             Self::UnsupportedNamespace => "namespace provider could not be fully modeled",
+        }
+    }
+
+    fn effects(self) -> Vec<UncertaintyEffect> {
+        match self {
+            Self::DynamicAttributeRead => vec![
+                UncertaintyEffect::MayReadAnyAttribute,
+                UncertaintyEffect::MayIntroduceReference,
+            ],
+            Self::DynamicExecution => vec![
+                UncertaintyEffect::MayIntroduceReference,
+                UncertaintyEffect::MayMutateNamespace,
+                UncertaintyEffect::MayInvokeCallable,
+            ],
+            Self::DynamicExport => vec![
+                UncertaintyEffect::MayAlterExports,
+                UncertaintyEffect::MayIntroduceReference,
+            ],
+            Self::DynamicImport => vec![
+                UncertaintyEffect::MayAlterRoots,
+                UncertaintyEffect::MayIntroduceReference,
+            ],
+            Self::DynamicModuleAttribute | Self::ModuleGetattr => {
+                vec![UncertaintyEffect::MayReadAnyAttribute]
+            }
+            Self::NamespaceMutation => vec![
+                UncertaintyEffect::MayMutateNamespace,
+                UncertaintyEffect::MayIntroduceReference,
+            ],
+            Self::ExternalImport | Self::ImportResolution | Self::UnsupportedNamespace => vec![
+                UncertaintyEffect::MayIntroduceReference,
+                UncertaintyEffect::MayAlterRoots,
+            ],
+            Self::NamespaceOrder | Self::PartialInitialization => {
+                vec![UncertaintyEffect::MayIntroduceReference]
+            }
+            Self::RuntimeAnnotationIntrospection => {
+                vec![UncertaintyEffect::MayEvaluateAnnotations]
+            }
         }
     }
 }
@@ -443,6 +572,39 @@ struct DynamicImportOperation {
     call: ExprCall,
 }
 
+#[derive(Clone)]
+struct ReflectiveOperation {
+    module: ModuleId,
+    call: ExprCall,
+    kind: ReflectiveOperationKind,
+    phase: ReferencePhase,
+}
+
+#[derive(Clone)]
+struct NamespaceMappingOperation {
+    module: ModuleId,
+    call: ExprCall,
+    kind: NamespaceMappingOperationKind,
+}
+
+#[derive(Clone, Copy, Eq, PartialEq)]
+enum ReflectiveOperationKind {
+    Getattr,
+    Hasattr,
+    Setattr,
+    Delattr,
+    Eval,
+    Exec,
+    RuntimeAnnotationIntrospection,
+}
+
+#[derive(Clone, Copy, Eq, PartialEq)]
+enum NamespaceMappingOperationKind {
+    Read,
+    Mutation,
+    Escape,
+}
+
 #[derive(Clone, Copy, Eq, PartialEq)]
 enum AttributeOperationKind {
     Read,
@@ -460,6 +622,8 @@ struct ProjectResolver<'a, 'b> {
     assignment_operations: Vec<AssignmentOperation>,
     attribute_operations: Vec<AttributeOperation>,
     dynamic_import_operations: Vec<DynamicImportOperation>,
+    reflective_operations: Vec<ReflectiveOperation>,
+    namespace_mapping_operations: Vec<NamespaceMappingOperation>,
     star_imports: Vec<ImportOperation>,
     binding_values: BTreeMap<BindingId, ValueSet>,
     module_slots: BTreeMap<(ModuleId, String), ValueSet>,
@@ -486,6 +650,8 @@ impl<'a, 'b> ProjectResolver<'a, 'b> {
             assignment_operations: Vec::new(),
             attribute_operations: Vec::new(),
             dynamic_import_operations: Vec::new(),
+            reflective_operations: Vec::new(),
+            namespace_mapping_operations: Vec::new(),
             star_imports: Vec::new(),
             binding_values: BTreeMap::new(),
             module_slots: BTreeMap::new(),
@@ -503,12 +669,6 @@ impl<'a, 'b> ProjectResolver<'a, 'b> {
                 &parsed.syntax.body,
                 ReferencePhase::ImportTime,
             );
-            if has_module_getattr(&parsed.syntax) {
-                self.module_uncertainty
-                    .entry(parsed.module.id)
-                    .or_default()
-                    .insert(Part2Uncertainty::ModuleGetattr);
-            }
         }
         self.mark_circular_import_uncertainty();
     }
@@ -534,6 +694,11 @@ impl<'a, 'b> ProjectResolver<'a, 'b> {
                 Stmt::ImportFrom(import) => self.collect_import_from(module, import, phase),
                 Stmt::Assign(assign) => {
                     self.collect_assignment(module, assign);
+                    self.collect_namespace_mapping_escape(
+                        module,
+                        &assign.value,
+                        NamespaceMappingOperationKind::Escape,
+                    );
                     self.collect_expr_operations(module, &assign.value, phase);
                     for target in &assign.targets {
                         self.collect_target_attribute_operations(
@@ -741,6 +906,15 @@ impl<'a, 'b> ProjectResolver<'a, 'b> {
                     self.collect_target_attribute_operations(module, element, kind, phase);
                 }
             }
+            Expr::Subscript(subscript) => {
+                self.collect_namespace_mapping_escape(
+                    module,
+                    &subscript.value,
+                    NamespaceMappingOperationKind::Mutation,
+                );
+                self.collect_expr_operations(module, &subscript.value, phase);
+                self.collect_expr_operations(module, &subscript.slice, phase);
+            }
             _ => {}
         }
     }
@@ -755,6 +929,11 @@ impl<'a, 'b> ProjectResolver<'a, 'b> {
             Stmt::Expr(expr) => self.collect_expr_operations(module, &expr.value, phase),
             Stmt::Return(stmt) => {
                 if let Some(value) = &stmt.value {
+                    self.collect_namespace_mapping_escape(
+                        module,
+                        value,
+                        NamespaceMappingOperationKind::Escape,
+                    );
                     self.collect_expr_operations(module, value, phase);
                 }
             }
@@ -833,8 +1012,14 @@ impl<'a, 'b> ProjectResolver<'a, 'b> {
             }
             Expr::Call(call) => {
                 self.collect_dynamic_import_call(module, call, phase);
+                self.collect_reflective_call(module, call, phase);
                 self.collect_expr_operations(module, &call.func, phase);
                 collect_arguments(&call.arguments, |expr| {
+                    self.collect_namespace_mapping_escape(
+                        module,
+                        expr,
+                        NamespaceMappingOperationKind::Escape,
+                    );
                     self.collect_expr_operations(module, expr, phase)
                 });
             }
@@ -863,6 +1048,13 @@ impl<'a, 'b> ProjectResolver<'a, 'b> {
                 }
             }
             Expr::Subscript(expr) => {
+                if matches!(expr.ctx, ExprContext::Load) {
+                    self.collect_namespace_mapping_escape(
+                        module,
+                        &expr.value,
+                        NamespaceMappingOperationKind::Read,
+                    );
+                }
                 self.collect_expr_operations(module, &expr.value, phase);
                 self.collect_expr_operations(module, &expr.slice, phase);
             }
@@ -915,6 +1107,66 @@ impl<'a, 'b> ProjectResolver<'a, 'b> {
             module,
             call: call.clone(),
         });
+    }
+
+    fn collect_reflective_call(
+        &mut self,
+        module: ModuleId,
+        call: &ExprCall,
+        phase: ReferencePhase,
+    ) {
+        let Some(kind) = self.reflective_call_kind(module, &call.func) else {
+            return;
+        };
+        self.reflective_operations.push(ReflectiveOperation {
+            module,
+            call: call.clone(),
+            kind,
+            phase,
+        });
+    }
+
+    fn collect_namespace_mapping_escape(
+        &mut self,
+        module: ModuleId,
+        expression: &Expr,
+        kind: NamespaceMappingOperationKind,
+    ) {
+        let Some(call) = namespace_mapping_call(expression) else {
+            return;
+        };
+        self.namespace_mapping_operations
+            .push(NamespaceMappingOperation {
+                module,
+                call: call.clone(),
+                kind,
+            });
+    }
+
+    fn reflective_call_kind(
+        &self,
+        _module: ModuleId,
+        function: &Expr,
+    ) -> Option<ReflectiveOperationKind> {
+        match function {
+            Expr::Name(name) => match name.id.as_str() {
+                "getattr" => Some(ReflectiveOperationKind::Getattr),
+                "hasattr" => Some(ReflectiveOperationKind::Hasattr),
+                "setattr" => Some(ReflectiveOperationKind::Setattr),
+                "delattr" => Some(ReflectiveOperationKind::Delattr),
+                "eval" => Some(ReflectiveOperationKind::Eval),
+                "exec" => Some(ReflectiveOperationKind::Exec),
+                _ => None,
+            },
+            Expr::Attribute(attribute) => {
+                let attr = attribute.attr.id.as_str();
+                if attr == "get_annotations" || attr == "get_type_hints" || attr == "evaluate" {
+                    return Some(ReflectiveOperationKind::RuntimeAnnotationIntrospection);
+                }
+                None
+            }
+            _ => None,
+        }
     }
 
     fn mark_circular_import_uncertainty(&mut self) {
@@ -1029,6 +1281,12 @@ impl<'a, 'b> ProjectResolver<'a, 'b> {
             }
             for operation in self.dynamic_import_operations.clone() {
                 changed |= self.apply_dynamic_import_operation(operation);
+            }
+            for operation in self.reflective_operations.clone() {
+                changed |= self.apply_reflective_operation(operation);
+            }
+            for operation in self.namespace_mapping_operations.clone() {
+                changed |= self.apply_namespace_mapping_operation(operation);
             }
             for operation in self.attribute_operations.clone() {
                 changed |= self.apply_attribute_operation(operation);
@@ -1186,6 +1444,129 @@ impl<'a, 'b> ProjectResolver<'a, 'b> {
             }
         }
         changed
+    }
+
+    fn apply_reflective_operation(&mut self, operation: ReflectiveOperation) -> bool {
+        if self.reflective_builtin_is_shadowed(operation.module, &operation.call.func) {
+            return false;
+        }
+        match operation.kind {
+            ReflectiveOperationKind::Getattr | ReflectiveOperationKind::Hasattr => {
+                self.apply_reflective_attribute_read(operation)
+            }
+            ReflectiveOperationKind::Setattr | ReflectiveOperationKind::Delattr => {
+                self.apply_reflective_attribute_mutation(operation)
+            }
+            ReflectiveOperationKind::Eval | ReflectiveOperationKind::Exec => self
+                .module_uncertainty
+                .entry(operation.module)
+                .or_default()
+                .insert(Part2Uncertainty::DynamicExecution),
+            ReflectiveOperationKind::RuntimeAnnotationIntrospection => self
+                .module_uncertainty
+                .entry(operation.module)
+                .or_default()
+                .insert(Part2Uncertainty::RuntimeAnnotationIntrospection),
+        }
+    }
+
+    fn apply_reflective_attribute_read(&mut self, operation: ReflectiveOperation) -> bool {
+        let Some(receiver) = operation.call.arguments.args.first() else {
+            return false;
+        };
+        let base = self.resolve_expr_value(operation.module, receiver);
+        let Some(name) = nth_string_arg(&operation.call, 1) else {
+            return self.add_dynamic_namespace_uncertainty(
+                operation.module,
+                base,
+                Part2Uncertainty::DynamicAttributeRead,
+            );
+        };
+        let mut changed = false;
+        if base.modules.is_empty() {
+            if !base.is_empty() {
+                changed |= self
+                    .module_uncertainty
+                    .entry(operation.module)
+                    .or_default()
+                    .insert(Part2Uncertainty::DynamicAttributeRead);
+            }
+            return changed;
+        }
+        for module in base.modules {
+            let value = self.resolve_module_attribute(ValueSet::module(module), &name);
+            self.add_cross_references_from_value(
+                value,
+                FindingReferenceKind::ModuleAttribute,
+                operation.module,
+                name.clone(),
+                to_range(operation.call.range),
+                operation.phase,
+            );
+        }
+        changed
+    }
+
+    fn apply_reflective_attribute_mutation(&mut self, operation: ReflectiveOperation) -> bool {
+        let Some(receiver) = operation.call.arguments.args.first() else {
+            return false;
+        };
+        let base = self.resolve_expr_value(operation.module, receiver);
+        let uncertainty = if nth_string_arg(&operation.call, 1).is_some() {
+            Part2Uncertainty::NamespaceMutation
+        } else {
+            Part2Uncertainty::DynamicModuleAttribute
+        };
+        self.add_dynamic_namespace_uncertainty(operation.module, base, uncertainty)
+    }
+
+    fn apply_namespace_mapping_operation(&mut self, operation: NamespaceMappingOperation) -> bool {
+        if self.reflective_builtin_is_shadowed(operation.module, &operation.call.func) {
+            return false;
+        }
+        let uncertainties: &[Part2Uncertainty] = match operation.kind {
+            NamespaceMappingOperationKind::Read => &[Part2Uncertainty::DynamicAttributeRead],
+            NamespaceMappingOperationKind::Mutation => &[Part2Uncertainty::NamespaceMutation],
+            NamespaceMappingOperationKind::Escape => &[
+                Part2Uncertainty::DynamicAttributeRead,
+                Part2Uncertainty::NamespaceMutation,
+            ],
+        };
+        let entry = self.module_uncertainty.entry(operation.module).or_default();
+        let mut changed = false;
+        for uncertainty in uncertainties {
+            changed |= entry.insert(*uncertainty);
+        }
+        changed
+    }
+
+    fn add_dynamic_namespace_uncertainty(
+        &mut self,
+        fallback_module: ModuleId,
+        base: ValueSet,
+        uncertainty: Part2Uncertainty,
+    ) -> bool {
+        let mut changed = false;
+        if base.modules.is_empty() {
+            changed |= self
+                .module_uncertainty
+                .entry(fallback_module)
+                .or_default()
+                .insert(uncertainty);
+        } else {
+            for module in base.modules {
+                changed |= self
+                    .module_uncertainty
+                    .entry(module)
+                    .or_default()
+                    .insert(uncertainty);
+            }
+        }
+        changed
+    }
+
+    fn reflective_builtin_is_shadowed(&mut self, module: ModuleId, function: &Expr) -> bool {
+        matches!(function, Expr::Name(_)) && !self.resolve_expr_value(module, function).is_empty()
     }
 
     fn record_binding_value(&mut self, binding: BindingId, value: ValueSet) -> bool {
@@ -3138,11 +3519,10 @@ impl<'a, 'b, 'c> ReachabilityBuilder<'a, 'b, 'c> {
             }
             definitions = next;
         }
-        if definitions.len() == 1 {
-            Ok(*definitions.iter().next().unwrap())
-        } else {
-            Err(())
-        }
+        (definitions.len() == 1)
+            .then(|| definitions.iter().next().copied())
+            .flatten()
+            .ok_or(())
     }
 }
 
@@ -3376,6 +3756,7 @@ fn build_findings(
     resolver: &ProjectResolver<'_, '_>,
     reachability: &ReachabilityAnalysis,
     mode: ProjectMode,
+    project_completeness: &ProjectCompleteness,
 ) -> Vec<Finding> {
     let same_module_refs = same_module_references(graph, facts);
     let mut cross_refs: BTreeMap<DefId, Vec<&CrossReference>> = BTreeMap::new();
@@ -3453,6 +3834,7 @@ fn build_findings(
 
         let (mut confidence, mut reason) =
             confidence_for_finding(mode, surface, finding_type, reachability.root_coverage);
+        let mut blockers = Vec::new();
         let mut uncertainty = resolver
             .module_uncertainty
             .get(&definition.module)
@@ -3460,26 +3842,48 @@ fn build_findings(
             .flatten()
             .map(|uncertainty| FindingUncertainty {
                 kind: uncertainty.output_kind(),
+                affected_region: UncertaintyRegion::module(facts.module_name(definition.module)),
+                effects: uncertainty.effects(),
                 detail: uncertainty.detail().to_owned(),
             })
             .collect::<Vec<_>>();
         if dynamic_class_construction.contains(&definition.id) {
             uncertainty.push(FindingUncertainty {
                 kind: FindingUncertaintyKind::DynamicClassConstruction,
+                affected_region: UncertaintyRegion::definition(definition.qualified_name.clone()),
+                effects: vec![
+                    UncertaintyEffect::MayInvokeCallable,
+                    UncertaintyEffect::MayIntroduceReference,
+                ],
                 detail:
                     "custom class construction may dispatch through unresolved metaclass behavior"
                         .to_owned(),
             });
         }
         if confidence == FindingConfidence::Review {
-            uncertainty.push(FindingUncertainty {
-                kind: FindingUncertaintyKind::PublicSurfacePolicy,
+            blockers.push(FindingBlocker {
+                kind: blocker_kind_for_reason(&reason),
                 detail: reason.clone(),
             });
         }
         if confidence == FindingConfidence::High && !uncertainty.is_empty() {
             confidence = FindingConfidence::Review;
             reason = "analysis uncertainty prevents a high-confidence claim".to_owned();
+            blockers.push(FindingBlocker {
+                kind: FindingBlockerKind::AnalysisUncertainty,
+                detail: reason.clone(),
+            });
+        }
+        if project_completeness.status == cull_core::ProjectCompletenessStatus::Partial {
+            if confidence == FindingConfidence::High {
+                confidence = FindingConfidence::Review;
+                reason = "partial project analysis caps confidence at Review".to_owned();
+            }
+            blockers.push(FindingBlocker {
+                kind: FindingBlockerKind::PartialProjectAnalysis,
+                detail: "included source files were skipped under explicit partial-analysis mode"
+                    .to_owned(),
+            });
         }
 
         let Some(parsed) = source_by_module.get(&definition.module) else {
@@ -3493,6 +3897,16 @@ fn build_findings(
             (DefinitionKind::Class, FindingType::RootUnreachable) => FindingRule::Cull004,
         };
         let effects = definition_effects(definition, facts);
+        if matches!(
+            definition.removal_risk,
+            RemovalRisk::Review(_) | RemovalRisk::Unknown
+        ) {
+            blockers.push(FindingBlocker {
+                kind: FindingBlockerKind::RemovalRisk,
+                detail: "removal risk requires review even when unusedness evidence is strong"
+                    .to_owned(),
+            });
+        }
         let inbound_references = same_refs
             .iter()
             .filter_map(|reference| finding_reference(reference, facts))
@@ -3507,28 +3921,59 @@ fn build_findings(
             .collect::<Vec<_>>();
         let origin_domains = origin_domain_summary(&inbound_references, definition.origin_domain);
         let reference_phases = reference_phase_summary(&inbound_references);
+        let definition_output = FindingDefinition {
+            kind: definition.kind,
+            name: definition.name.clone(),
+            qualified_name: definition.qualified_name.clone(),
+            module: facts.module_name(definition.module),
+            file: parsed.module.display_path.clone(),
+            range: definition.range,
+            line,
+            column,
+        };
+        let finding_id = candidate_fingerprint(rule_id, &definition_output);
+        let secondary_conditions = secondary_conditions_for(
+            finding_type,
+            has_inbound,
+            root_unreachable_enabled,
+            force_root_unreachable,
+        );
+        let reachability_output =
+            reachability_for_finding(definition, reachability, mode, finding_type);
+        let removal_risk = FindingRemovalRisk::from_semantic(&definition.removal_risk, &effects);
+        let evidence = evidence_for(
+            finding_type,
+            &inbound_references,
+            &exports,
+            surface,
+            &reachability_output,
+            &blockers,
+            &uncertainty,
+            &removal_risk,
+            &secondary_conditions,
+            project_completeness,
+            force_root_unreachable,
+        );
+        let explanation = explanation_for(
+            definition,
+            confidence,
+            surface,
+            finding_type,
+            force_root_unreachable,
+            reachability,
+        );
         let finding = Finding {
-            id: format!(
-                "{}:{}:{}",
-                rule_id.code(),
-                parsed.module.display_path,
-                definition.name
-            ),
+            finding_id: finding_id.clone(),
+            id: finding_id,
             rule_id,
             finding_type,
-            definition: FindingDefinition {
-                kind: definition.kind,
-                name: definition.name.clone(),
-                qualified_name: definition.qualified_name.clone(),
-                module: facts.module_name(definition.module),
-                file: parsed.module.display_path.clone(),
-                range: definition.range,
-                line,
-                column,
-            },
+            definition: definition_output,
+            status: CandidateStatus::Reported,
             confidence,
+            confidence_ceiling: confidence,
+            blockers,
             inbound_references,
-            reachability: reachability_for_finding(definition, reachability, mode, finding_type),
+            reachability: reachability_output,
             exports,
             mode_effect: FindingModeEffect {
                 mode,
@@ -3539,19 +3984,20 @@ fn build_findings(
             uncertainty,
             origin_domains,
             reference_phases,
-            removal_risk: FindingRemovalRisk::from_semantic(&definition.removal_risk, &effects),
-            explanation: explanation_for(
-                definition,
-                confidence,
-                surface,
-                finding_type,
-                force_root_unreachable,
-                reachability,
-            ),
+            removal_risk,
+            secondary_conditions,
+            evidence,
+            explanation,
         };
         findings.push(finding);
     }
 
+    sort_findings(&mut findings);
+    dedupe_finding_ids(&mut findings);
+    findings
+}
+
+fn sort_findings(findings: &mut [Finding]) {
     findings.sort_by(|left, right| {
         left.definition
             .file
@@ -3565,7 +4011,6 @@ fn build_findings(
             .then(left.rule_id.cmp(&right.rule_id))
             .then(left.id.cmp(&right.id))
     });
-    findings
 }
 
 fn same_module_references<'a>(
@@ -3938,6 +4383,183 @@ fn reaching_bindings(
     bindings
 }
 
+fn candidate_fingerprint(rule_id: FindingRule, definition: &FindingDefinition) -> String {
+    let input = format!(
+        "{}\0{}\0{}:{}\0{:?}\0{}\0{}",
+        rule_id.code(),
+        definition.file,
+        definition.range.start,
+        definition.range.end,
+        definition.kind,
+        definition.qualified_name,
+        definition.module
+    );
+    let digest = blake3::hash(input.as_bytes());
+    let encoded = BASE32_NOPAD.encode(&digest.as_bytes()[..16]);
+    format!("{}-{encoded}", rule_id.code())
+}
+
+fn dedupe_finding_ids(findings: &mut [Finding]) {
+    let mut seen = BTreeMap::<String, usize>::new();
+    for finding in findings {
+        let base = finding.finding_id.clone();
+        let count = seen.entry(base.clone()).or_default();
+        *count += 1;
+        if *count > 1 {
+            let unique_id = format!("{base}-{}", *count);
+            finding.finding_id = unique_id.clone();
+            finding.id = unique_id;
+        }
+    }
+}
+
+fn subject_fingerprint(definition: &FindingDefinition) -> String {
+    let input = format!(
+        "{}\0{}:{}\0{:?}\0{}\0{}",
+        definition.file,
+        definition.range.start,
+        definition.range.end,
+        definition.kind,
+        definition.qualified_name,
+        definition.module
+    );
+    let digest = blake3::hash(input.as_bytes());
+    format!("SUBJECT-{}", BASE32_NOPAD.encode(&digest.as_bytes()[..16]))
+}
+
+fn blocker_kind_for_reason(reason: &str) -> FindingBlockerKind {
+    if reason.contains("root coverage") || reason.contains("production roots") {
+        FindingBlockerKind::RootCoverage
+    } else if reason.contains("public")
+        || reason.contains("dunder")
+        || reason.contains("surface")
+        || reason.contains("mode")
+    {
+        FindingBlockerKind::PublicSurfacePolicy
+    } else {
+        FindingBlockerKind::AnalysisUncertainty
+    }
+}
+
+fn secondary_conditions_for(
+    finding_type: FindingType,
+    has_inbound: bool,
+    root_unreachable_enabled: bool,
+    force_root_unreachable: bool,
+) -> Vec<SecondaryCondition> {
+    match finding_type {
+        FindingType::RootUnreachable if !has_inbound || force_root_unreachable => {
+            vec![SecondaryCondition::AlsoUnreferenced]
+        }
+        FindingType::Unreferenced if root_unreachable_enabled => {
+            vec![SecondaryCondition::AlsoRootUnreachable]
+        }
+        _ => Vec::new(),
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn evidence_for(
+    finding_type: FindingType,
+    inbound_references: &[cull_core::FindingReference],
+    exports: &[cull_core::FindingExport],
+    surface: DefinitionSurface,
+    reachability: &FindingReachability,
+    blockers: &[FindingBlocker],
+    uncertainty: &[FindingUncertainty],
+    removal_risk: &FindingRemovalRisk,
+    secondary_conditions: &[SecondaryCondition],
+    project_completeness: &ProjectCompleteness,
+    dead_cluster_override: bool,
+) -> Vec<EvidenceRecord> {
+    let mut evidence = Vec::new();
+    match finding_type {
+        FindingType::Unreferenced => evidence.push(EvidenceRecord {
+            kind: EvidenceKind::NoInboundReferences,
+            summary: "no resolved inbound references were found".to_owned(),
+        }),
+        FindingType::RootUnreachable => evidence.push(EvidenceRecord {
+            kind: EvidenceKind::ReachabilitySummary,
+            summary: reachability.summary.clone(),
+        }),
+    }
+    if !inbound_references.is_empty() {
+        evidence.push(EvidenceRecord {
+            kind: EvidenceKind::InboundReferenceSummary,
+            summary: format!(
+                "{} inbound reference(s) were resolved",
+                inbound_references.len()
+            ),
+        });
+    }
+    evidence.push(EvidenceRecord {
+        kind: EvidenceKind::ExportStatus,
+        summary: if exports.is_empty() {
+            "definition is not exported through a static public surface".to_owned()
+        } else {
+            format!(
+                "definition has {} static export reference(s)",
+                exports.len()
+            )
+        },
+    });
+    evidence.push(EvidenceRecord {
+        kind: EvidenceKind::ModePolicy,
+        summary: format!("definition surface is {surface:?}"),
+    });
+    evidence.push(EvidenceRecord {
+        kind: EvidenceKind::RootCoverage,
+        summary: format!("root coverage is {:?}", reachability.root_coverage),
+    });
+    if dead_cluster_override {
+        evidence.push(EvidenceRecord {
+            kind: EvidenceKind::DeadClusterMembership,
+            summary: "dead-cluster priority selected root-unreachable as the primary finding"
+                .to_owned(),
+        });
+    }
+    for blocker in blockers {
+        evidence.push(EvidenceRecord {
+            kind: EvidenceKind::ConfidenceBlocker,
+            summary: blocker.detail.clone(),
+        });
+    }
+    for item in uncertainty {
+        evidence.push(EvidenceRecord {
+            kind: EvidenceKind::Uncertainty,
+            summary: item.detail.clone(),
+        });
+    }
+    if !secondary_conditions.is_empty() {
+        evidence.push(EvidenceRecord {
+            kind: EvidenceKind::SecondaryCondition,
+            summary: format!("secondary conditions: {secondary_conditions:?}"),
+        });
+    }
+    if project_completeness.status == cull_core::ProjectCompletenessStatus::Partial {
+        evidence.push(EvidenceRecord {
+            kind: EvidenceKind::ProjectCompleteness,
+            summary: format!(
+                "partial analysis skipped {} included source file(s)",
+                project_completeness.skipped_files.len()
+            ),
+        });
+    }
+    evidence.push(EvidenceRecord {
+        kind: EvidenceKind::RemovalRisk,
+        summary: match removal_risk {
+            FindingRemovalRisk::NoKnownDefinitionEffects => {
+                "no known definition-time effects were recorded".to_owned()
+            }
+            FindingRemovalRisk::Review { .. } => {
+                "definition-time effects require removal-risk review".to_owned()
+            }
+            FindingRemovalRisk::Unknown => "removal risk is unknown".to_owned(),
+        },
+    });
+    evidence
+}
+
 fn definition_surface(definition: &SemanticDefinition, exported: bool) -> DefinitionSurface {
     if exported {
         return DefinitionSurface::Exported;
@@ -3974,7 +4596,7 @@ fn confidence_for_surface(
         ),
         DefinitionSurface::SpecialDunder => (
             FindingConfidence::Review,
-            "special dunder definitions are at most Review in v0".to_owned(),
+            "special dunder definitions are at most Review".to_owned(),
         ),
         DefinitionSurface::Exported | DefinitionSurface::ModuleProtocolHook => (
             FindingConfidence::Review,
@@ -4079,7 +4701,120 @@ fn summarize_findings(findings: &[Finding]) -> CheckSummary {
             .iter()
             .filter(|finding| finding.confidence == FindingConfidence::Review)
             .count(),
-        suppressed: 0,
+        suppressed: findings
+            .iter()
+            .map(|finding| finding.secondary_conditions.len())
+            .sum(),
+    }
+}
+
+pub(crate) fn candidates_from_check(output: &CheckOutput) -> Vec<Candidate> {
+    let mut candidates = Vec::new();
+    for finding in &output.findings {
+        let subject_id = subject_fingerprint(&finding.definition);
+        candidates.push(Candidate {
+            candidate_id: finding.finding_id.clone(),
+            subject_id: subject_id.clone(),
+            rule_id: finding.rule_id,
+            finding_type: finding.finding_type,
+            definition: finding.definition.clone(),
+            status: CandidateStatus::Reported,
+            confidence: Some(finding.confidence),
+            confidence_ceiling: finding.confidence_ceiling,
+            blockers: finding.blockers.clone(),
+            suppression_reasons: Vec::new(),
+            uncertainty: finding.uncertainty.clone(),
+            evidence: finding.evidence.clone(),
+            removal_risk: finding.removal_risk.clone(),
+            secondary_conditions: finding.secondary_conditions.clone(),
+            explanation: finding.explanation.clone(),
+        });
+
+        for condition in &finding.secondary_conditions {
+            let (rule_id, finding_type) = secondary_rule_for(*condition, finding.definition.kind);
+            let candidate_id = candidate_fingerprint(rule_id, &finding.definition);
+            candidates.push(Candidate {
+                candidate_id,
+                subject_id: subject_id.clone(),
+                rule_id,
+                finding_type,
+                definition: finding.definition.clone(),
+                status: CandidateStatus::Suppressed,
+                confidence: None,
+                confidence_ceiling: finding.confidence,
+                blockers: finding.blockers.clone(),
+                suppression_reasons: vec![SuppressionReason {
+                    kind: SuppressionReasonKind::NonPrimaryRuleAlternative,
+                    detail:
+                        "another rule alternative was selected as the public primary finding"
+                            .to_owned(),
+                }],
+                uncertainty: finding.uncertainty.clone(),
+                evidence: vec![EvidenceRecord {
+                    kind: EvidenceKind::SecondaryCondition,
+                    summary:
+                        "suppressed because this rule is a non-primary alternative for the same definition"
+                            .to_owned(),
+                }],
+                removal_risk: finding.removal_risk.clone(),
+                secondary_conditions: Vec::new(),
+                explanation: vec![
+                    "another rule alternative was selected as the public primary finding"
+                        .to_owned(),
+                ],
+            });
+        }
+    }
+    sort_candidates(&mut candidates);
+    dedupe_candidate_ids(&mut candidates);
+    candidates
+}
+
+fn sort_candidates(candidates: &mut [Candidate]) {
+    candidates.sort_by(|left, right| {
+        left.definition
+            .file
+            .cmp(&right.definition.file)
+            .then(
+                left.definition
+                    .range
+                    .start
+                    .cmp(&right.definition.range.start),
+            )
+            .then(left.rule_id.cmp(&right.rule_id))
+            .then(left.candidate_id.cmp(&right.candidate_id))
+    });
+}
+
+fn dedupe_candidate_ids(candidates: &mut [Candidate]) {
+    let mut seen = BTreeMap::<String, usize>::new();
+    for candidate in candidates {
+        let base = candidate.candidate_id.clone();
+        let count = seen.entry(base.clone()).or_default();
+        *count += 1;
+        if *count > 1 {
+            candidate.candidate_id = format!("{base}-{}", *count);
+        }
+    }
+}
+
+fn secondary_rule_for(
+    condition: SecondaryCondition,
+    kind: DefinitionKind,
+) -> (FindingRule, FindingType) {
+    match (condition, kind) {
+        (SecondaryCondition::AlsoUnreferenced, DefinitionKind::Function) => {
+            (FindingRule::Cull001, FindingType::Unreferenced)
+        }
+        (SecondaryCondition::AlsoUnreferenced, DefinitionKind::Class) => {
+            (FindingRule::Cull002, FindingType::Unreferenced)
+        }
+        (SecondaryCondition::AlsoRootUnreachable, DefinitionKind::Function) => {
+            (FindingRule::Cull003, FindingType::RootUnreachable)
+        }
+        (SecondaryCondition::AlsoRootUnreachable, DefinitionKind::Class) => {
+            (FindingRule::Cull004, FindingType::RootUnreachable)
+        }
     }
 }
 
@@ -4142,8 +4877,25 @@ fn collect_arguments<'a>(arguments: &'a Arguments, mut visit: impl FnMut(&'a Exp
 }
 
 fn first_string_arg(call: &ExprCall) -> Option<String> {
-    let first = call.arguments.args.first()?;
-    string_literal_value(first)
+    nth_string_arg(call, 0)
+}
+
+fn nth_string_arg(call: &ExprCall, index: usize) -> Option<String> {
+    let value = call.arguments.args.get(index)?;
+    string_literal_value(value)
+}
+
+fn namespace_mapping_call(expression: &Expr) -> Option<&ExprCall> {
+    let Expr::Call(call) = expression else {
+        return None;
+    };
+    if !call.arguments.args.is_empty() || !call.arguments.keywords.is_empty() {
+        return None;
+    }
+    let Expr::Name(name) = &*call.func else {
+        return None;
+    };
+    matches!(name.id.as_str(), "globals" | "locals" | "vars").then_some(call)
 }
 
 fn string_literal_value(expression: &Expr) -> Option<String> {

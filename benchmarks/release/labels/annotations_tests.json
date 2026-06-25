@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "case_id": "annotations_tests",
+  "definitions": [
+    {"path": "src/pkg/types.py", "line": 1, "kind": "class", "qualified_name": "pkg.types::User", "label": "live", "reason": "referenced from a type annotation"},
+    {"path": "src/pkg/types.py", "line": 5, "kind": "class", "qualified_name": "pkg.types::RuntimeDead", "label": "dead", "expected_rule": "CULL002", "reason": "unreferenced top-level class"},
+    {"path": "src/pkg/service.py", "line": 6, "kind": "function", "qualified_name": "pkg.service::accepts_user", "label": "dead", "expected_rule": "CULL001", "reason": "annotation reference does not make the function itself used"},
+    {"path": "src/pkg/service.py", "line": 10, "kind": "function", "qualified_name": "pkg.service::test_only_helper", "label": "test_only", "reason": "referenced only from the test domain"},
+    {"path": "tests/test_service.py", "line": 4, "kind": "function", "qualified_name": "tests.test_service::test_helper", "label": "out_of_scope", "reason": "test fixture function outside production source roots"}
+  ]
+}

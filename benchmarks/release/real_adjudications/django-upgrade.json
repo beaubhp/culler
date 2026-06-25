@@ -1,0 +1,17 @@
+{
+  "repository_id": "django-upgrade",
+  "url": "https://github.com/adamchainz/django-upgrade",
+  "commit": "a0efd953faf6644b5b6d37716b5b183825310bc0",
+  "mode": "application",
+  "review_date": "2026-06-25",
+  "review_scope": "Reviewed high-confidence Cull findings and top-level function/class baseline findings; not a full recall ground truth.",
+  "cull_high_confidence": {
+    "reviewed": 0,
+    "false_positive": 0
+  },
+  "baseline_findings_reviewed": {
+    "vulture": 1,
+    "deadcode": 77
+  },
+  "adjudication": "No high-confidence Cull findings were emitted at this checkpoint. Baseline findings are retained as trust-check volume rather than full truth labels."
+}

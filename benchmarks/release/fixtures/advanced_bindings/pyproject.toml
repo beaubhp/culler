@@ -1,0 +1,9 @@
+[project]
+name = "cull-benchmark-advanced-bindings"
+version = "1.0.0"
+
+[project.scripts]
+advanced-case = "pkg.app:main"
+
+[tool.cull]
+root_coverage = "complete"

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "case_id": "constructed_library",
+  "definitions": [
+    {"path": "src/pkg/public.py", "line": 4, "kind": "function", "qualified_name": "pkg.public::connect", "label": "live", "reason": "exported public API"},
+    {"path": "src/pkg/public.py", "line": 8, "kind": "class", "qualified_name": "pkg.public::Client", "label": "live", "reason": "exported public API"},
+    {"path": "src/pkg/public.py", "line": 13, "kind": "function", "qualified_name": "pkg.public::experimental_public", "label": "live", "reason": "public library surface is conservative"},
+    {"path": "src/pkg/private.py", "line": 1, "kind": "function", "qualified_name": "pkg.private::_connect_impl", "label": "live", "reason": "private helper reached by exported API"},
+    {"path": "src/pkg/private.py", "line": 5, "kind": "function", "qualified_name": "pkg.private::_dead_parser", "label": "dead", "expected_rule": "CULL001", "reason": "private unreferenced helper"},
+    {"path": "src/pkg/private.py", "line": 9, "kind": "function", "qualified_name": "pkg.private::_dead_serializer", "label": "dead", "expected_rule": "CULL001", "reason": "private unreferenced helper"},
+    {"path": "src/pkg/private.py", "line": 13, "kind": "class", "qualified_name": "pkg.private::_DeadAdapter", "label": "dead", "expected_rule": "CULL002", "reason": "private unreferenced class"}
+  ]
+}

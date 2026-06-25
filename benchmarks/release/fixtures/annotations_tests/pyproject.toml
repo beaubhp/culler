@@ -1,0 +1,4 @@
+[tool.cull]
+src = "src"
+tests = ["tests"]
+mode = "application"

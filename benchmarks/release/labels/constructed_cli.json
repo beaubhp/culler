@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "case_id": "constructed_cli",
+  "definitions": [
+    {"path": "src/pkg/cli.py", "line": 4, "kind": "function", "qualified_name": "pkg.cli::main", "label": "live", "reason": "console script root"},
+    {"path": "src/pkg/cli.py", "line": 9, "kind": "function", "qualified_name": "pkg.cli::legacy_entry", "label": "dead", "expected_rule": "CULL003", "reason": "unreachable legacy command entry"},
+    {"path": "src/pkg/cli.py", "line": 13, "kind": "function", "qualified_name": "pkg.cli::old_helper", "label": "dead", "expected_rule": "CULL003", "reason": "reachable only from dead legacy entry"},
+    {"path": "src/pkg/cli.py", "line": 17, "kind": "function", "qualified_name": "pkg.cli::unused_command", "label": "dead", "expected_rule": "CULL001", "reason": "unreferenced command function"},
+    {"path": "src/pkg/commands.py", "line": 1, "kind": "function", "qualified_name": "pkg.commands::run_convert", "label": "live", "reason": "called by console script root"},
+    {"path": "src/pkg/commands.py", "line": 5, "kind": "function", "qualified_name": "pkg.commands::run_check", "label": "live", "reason": "called by console script root"},
+    {"path": "src/pkg/commands.py", "line": 9, "kind": "function", "qualified_name": "pkg.commands::shared", "label": "live", "reason": "called by live commands"},
+    {"path": "src/pkg/commands.py", "line": 13, "kind": "function", "qualified_name": "pkg.commands::unused_flag_parser", "label": "dead", "expected_rule": "CULL001", "reason": "unreferenced helper"},
+    {"path": "src/pkg/commands.py", "line": 17, "kind": "class", "qualified_name": "pkg.commands::LegacyCommand", "label": "dead", "expected_rule": "CULL002", "reason": "unreferenced command class"},
+    {"path": "src/pkg/commands.py", "line": 21, "kind": "class", "qualified_name": "pkg.commands::LiveCommand", "label": "dead", "expected_rule": "CULL002", "reason": "intentionally named live but unreferenced"}
+  ]
+}

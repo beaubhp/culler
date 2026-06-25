@@ -1,0 +1,5 @@
+[tool.cull]
+src = "src"
+mode = "application"
+root_coverage = "complete"
+roots = ["pkg.scale:main"]

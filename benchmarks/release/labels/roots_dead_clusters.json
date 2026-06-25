@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "case_id": "roots_dead_clusters",
+  "definitions": [
+    {"path": "src/pkg/app.py", "line": 1, "kind": "function", "qualified_name": "pkg.app::main", "label": "live", "reason": "configured application root"},
+    {"path": "src/pkg/app.py", "line": 5, "kind": "function", "qualified_name": "pkg.app::live_entry", "label": "live", "reason": "called from root"},
+    {"path": "src/pkg/app.py", "line": 9, "kind": "function", "qualified_name": "pkg.app::live_helper", "label": "live", "reason": "called from live code"},
+    {"path": "src/pkg/app.py", "line": 13, "kind": "function", "qualified_name": "pkg.app::cluster_a", "label": "dead", "expected_rule": "CULL003", "reason": "member of an unreachable weak component"},
+    {"path": "src/pkg/app.py", "line": 17, "kind": "function", "qualified_name": "pkg.app::cluster_b", "label": "dead", "expected_rule": "CULL003", "reason": "member of an unreachable weak component"},
+    {"path": "src/pkg/app.py", "line": 21, "kind": "class", "qualified_name": "pkg.app::ClusterClass", "label": "dead", "expected_rule": "CULL002", "reason": "unreferenced top-level class"},
+    {"path": "src/pkg/app.py", "line": 25, "kind": "function", "qualified_name": "pkg.app::lonely_dead", "label": "dead", "expected_rule": "CULL001", "reason": "isolated unreferenced top-level function"}
+  ]
+}

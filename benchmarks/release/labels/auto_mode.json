@@ -1,0 +1,9 @@
+{
+  "case_id": "auto_mode",
+  "definitions": [
+    {"path": "src/pkg/cli.py", "line": 1, "kind": "function", "qualified_name": "pkg.cli::main", "label": "live", "reason": "script root discovered in auto mode"},
+    {"path": "src/pkg/cli.py", "line": 5, "kind": "function", "qualified_name": "pkg.cli::live_root", "label": "live", "reason": "called by the script root"},
+    {"path": "src/pkg/cli.py", "line": 9, "kind": "function", "qualified_name": "pkg.cli::auto_dead", "label": "dead", "expected_rule": "CULL001", "max_confidence": "review", "reason": "unreferenced top-level function in auto mode; public auto-mode findings stay Review"},
+    {"path": "src/pkg/cli.py", "line": 13, "kind": "class", "qualified_name": "pkg.cli::AutoDead", "label": "dead", "expected_rule": "CULL002", "max_confidence": "review", "reason": "unreferenced top-level class in auto mode; public auto-mode findings stay Review"}
+  ]
+}

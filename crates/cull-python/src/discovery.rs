@@ -57,6 +57,7 @@ pub struct DiscoveredProject {
     pub gui_scripts: Vec<ProjectScript>,
     pub dynamic_scripts: bool,
     pub dynamic_gui_scripts: bool,
+    pub allow_partial: bool,
     pub diagnostics: Vec<Diagnostic>,
 }
 
@@ -195,6 +196,7 @@ pub fn discover_project(options: DiscoveryOptions) -> Result<DiscoveredProject, 
         gui_scripts: config.gui_scripts,
         dynamic_scripts: config.dynamic_scripts,
         dynamic_gui_scripts: config.dynamic_gui_scripts,
+        allow_partial: config.allow_partial,
         diagnostics,
     })
 }

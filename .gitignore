@@ -1,3 +1,4 @@
 /target/
 /fuzz/target/
 /.context/
+/benchmarks/release/results/

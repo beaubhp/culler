@@ -1,0 +1,17 @@
+{
+  "repository_id": "itsdangerous",
+  "url": "https://github.com/pallets/itsdangerous",
+  "commit": "672971d66a2ef9f85151e53283113f33d642dabd",
+  "mode": "library",
+  "review_date": "2026-06-25",
+  "review_scope": "Reviewed high-confidence Cull findings and top-level function/class baseline findings; not a full recall ground truth.",
+  "cull_high_confidence": {
+    "reviewed": 0,
+    "false_positive": 0
+  },
+  "baseline_findings_reviewed": {
+    "vulture": 0,
+    "deadcode": 0
+  },
+  "adjudication": "No high-confidence Cull findings or baseline top-level dead-code findings were emitted at this checkpoint."
+}

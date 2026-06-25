@@ -1,0 +1,1 @@
+"""Auto-mode benchmark fixture."""

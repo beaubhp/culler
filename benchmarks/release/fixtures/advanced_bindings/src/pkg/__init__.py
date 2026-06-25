@@ -1,0 +1,1 @@
+"""Advanced binding benchmark fixture."""

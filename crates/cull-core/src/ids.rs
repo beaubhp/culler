@@ -30,6 +30,8 @@ id_type!(BindingSetId);
 id_type!(DefinitionEffectSetId);
 id_type!(FlowUncertaintySetId);
 id_type!(InternalCandidateId);
+id_type!(CandidateSubjectId);
+id_type!(CandidateId);
 id_type!(ReferenceId);
 id_type!(RootId);
 id_type!(LoopId);

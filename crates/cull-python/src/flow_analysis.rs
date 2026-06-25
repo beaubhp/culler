@@ -1079,9 +1079,11 @@ impl FlowAnalyzer<'_> {
 
         let mut normal_exhaustion = Some(loop_entry);
         if !while_stmt.orelse.is_empty() {
-            normal_exhaustion = self
-                .analyze_block(&while_stmt.orelse, context, normal_exhaustion.unwrap())
-                .normal;
+            if let Some(entry) = normal_exhaustion {
+                normal_exhaustion = self
+                    .analyze_block(&while_stmt.orelse, context, entry)
+                    .normal;
+            }
         }
         FlowOutcome {
             normal: join_envs(normal_exhaustion, loop_outcome.break_),
@@ -1131,9 +1133,9 @@ impl FlowAnalyzer<'_> {
 
         let mut normal_exhaustion = Some(zero_iteration.join(&loop_entry));
         if !for_stmt.orelse.is_empty() {
-            normal_exhaustion = self
-                .analyze_block(&for_stmt.orelse, context, normal_exhaustion.unwrap())
-                .normal;
+            if let Some(entry) = normal_exhaustion {
+                normal_exhaustion = self.analyze_block(&for_stmt.orelse, context, entry).normal;
+            }
         }
         FlowOutcome {
             normal: join_envs(normal_exhaustion, loop_outcome.break_),

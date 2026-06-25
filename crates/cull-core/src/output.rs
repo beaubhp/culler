@@ -37,6 +37,8 @@ pub enum ProjectMode {
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct CheckOutput {
     pub schema_version: u32,
+    pub analysis: CheckAnalysis,
+    pub project_completeness: ProjectCompleteness,
     pub target_python: PythonVersion,
     pub project_root: String,
     pub source_roots: Vec<SourceRootOutput>,
@@ -48,6 +50,61 @@ pub struct CheckOutput {
     pub diagnostics: Vec<Diagnostic>,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct CheckAnalysis {
+    pub mode: ProjectMode,
+    pub target_python: PythonVersion,
+    pub root_coverage: RootCoverage,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct ProjectCompleteness {
+    pub status: ProjectCompletenessStatus,
+    pub skipped_files: Vec<SkippedFile>,
+    pub skipped_reasons: Vec<String>,
+    pub confidence_ceiling: Option<FindingConfidence>,
+}
+
+impl ProjectCompleteness {
+    pub fn complete() -> Self {
+        Self {
+            status: ProjectCompletenessStatus::Complete,
+            skipped_files: Vec::new(),
+            skipped_reasons: Vec::new(),
+            confidence_ceiling: None,
+        }
+    }
+
+    pub fn partial(skipped_files: Vec<SkippedFile>) -> Self {
+        let mut skipped_reasons = skipped_files
+            .iter()
+            .map(|file| file.reason.clone())
+            .collect::<Vec<_>>();
+        skipped_reasons.sort();
+        skipped_reasons.dedup();
+        Self {
+            status: ProjectCompletenessStatus::Partial,
+            skipped_files,
+            skipped_reasons,
+            confidence_ceiling: Some(FindingConfidence::Review),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ProjectCompletenessStatus {
+    Complete,
+    Partial,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct SkippedFile {
+    pub path: String,
+    pub reason: String,
+    pub diagnostic_code: String,
+}
+
 #[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 pub struct CheckSummary {
     pub high_confidence: usize,
@@ -57,11 +114,15 @@ pub struct CheckSummary {
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Finding {
+    pub finding_id: String,
     pub id: String,
     pub rule_id: FindingRule,
     pub finding_type: FindingType,
     pub definition: FindingDefinition,
+    pub status: CandidateStatus,
     pub confidence: FindingConfidence,
+    pub confidence_ceiling: FindingConfidence,
+    pub blockers: Vec<FindingBlocker>,
     pub inbound_references: Vec<FindingReference>,
     pub reachability: FindingReachability,
     pub exports: Vec<FindingExport>,
@@ -70,7 +131,35 @@ pub struct Finding {
     pub origin_domains: Vec<FindingOriginSummary>,
     pub reference_phases: Vec<FindingPhaseSummary>,
     pub removal_risk: FindingRemovalRisk,
+    pub secondary_conditions: Vec<SecondaryCondition>,
+    pub evidence: Vec<EvidenceRecord>,
     pub explanation: Vec<String>,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct Candidate {
+    pub candidate_id: String,
+    pub subject_id: String,
+    pub rule_id: FindingRule,
+    pub finding_type: FindingType,
+    pub definition: FindingDefinition,
+    pub status: CandidateStatus,
+    pub confidence: Option<FindingConfidence>,
+    pub confidence_ceiling: FindingConfidence,
+    pub blockers: Vec<FindingBlocker>,
+    pub suppression_reasons: Vec<SuppressionReason>,
+    pub uncertainty: Vec<FindingUncertainty>,
+    pub evidence: Vec<EvidenceRecord>,
+    pub removal_risk: FindingRemovalRisk,
+    pub secondary_conditions: Vec<SecondaryCondition>,
+    pub explanation: Vec<String>,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CandidateStatus {
+    Reported,
+    Suppressed,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
@@ -107,6 +196,69 @@ impl FindingRule {
 pub enum FindingType {
     Unreferenced,
     RootUnreachable,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct FindingBlocker {
+    pub kind: FindingBlockerKind,
+    pub detail: String,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum FindingBlockerKind {
+    AnalysisUncertainty,
+    PartialProjectAnalysis,
+    PublicSurfacePolicy,
+    RemovalRisk,
+    RootCoverage,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct SuppressionReason {
+    pub kind: SuppressionReasonKind,
+    pub detail: String,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SuppressionReasonKind {
+    NonPrimaryRuleAlternative,
+    CandidateConstructionInvalidated,
+    UnsupportedFlow,
+    UnboundedDynamicBehavior,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SecondaryCondition {
+    AlsoUnreferenced,
+    AlsoRootUnreachable,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct EvidenceRecord {
+    pub kind: EvidenceKind,
+    pub summary: String,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum EvidenceKind {
+    NoInboundReferences,
+    InboundReferenceSummary,
+    ExportStatus,
+    ModePolicy,
+    RootCoverage,
+    ReachabilitySummary,
+    DeadClusterMembership,
+    OriginSummary,
+    DefinitionEffect,
+    RemovalRisk,
+    ProjectCompleteness,
+    ConfidenceBlocker,
+    Uncertainty,
+    SecondaryCondition,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -254,6 +406,8 @@ pub enum DefinitionSurface {
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct FindingUncertainty {
     pub kind: FindingUncertaintyKind,
+    pub affected_region: UncertaintyRegion,
+    pub effects: Vec<UncertaintyEffect>,
     pub detail: String,
 }
 
@@ -273,6 +427,62 @@ pub enum FindingUncertaintyKind {
     RemovalRisk,
     UnsupportedExport,
     UnsupportedNamespace,
+    DynamicAttributeRead,
+    DynamicExecution,
+    NamespaceMutation,
+    RuntimeAnnotationIntrospection,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct UncertaintyRegion {
+    pub kind: UncertaintyRegionKind,
+    pub target: String,
+}
+
+impl UncertaintyRegion {
+    pub fn module(target: impl Into<String>) -> Self {
+        Self {
+            kind: UncertaintyRegionKind::ModuleNamespace,
+            target: target.into(),
+        }
+    }
+
+    pub fn definition(target: impl Into<String>) -> Self {
+        Self {
+            kind: UncertaintyRegionKind::Definition,
+            target: target.into(),
+        }
+    }
+
+    pub fn project() -> Self {
+        Self {
+            kind: UncertaintyRegionKind::Project,
+            target: "<project>".to_owned(),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum UncertaintyRegionKind {
+    Definition,
+    ExecutionContext,
+    ModuleNamespace,
+    ExportSurface,
+    ObjectValue,
+    Project,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum UncertaintyEffect {
+    MayReadAnyAttribute,
+    MayMutateNamespace,
+    MayIntroduceReference,
+    MayInvokeCallable,
+    MayAlterExports,
+    MayAlterRoots,
+    MayEvaluateAnnotations,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -355,6 +565,48 @@ pub struct DebugReferencesOutput {
     pub overload_groups: Vec<OverloadGroupFact>,
     pub internal_candidates: Vec<InternalCandidateFact>,
     pub diagnostics: Vec<Diagnostic>,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct DebugCandidatesOutput {
+    pub schema_version: u32,
+    pub analysis: CheckAnalysis,
+    pub project_root: String,
+    pub source_roots: Vec<SourceRootOutput>,
+    pub project_completeness: ProjectCompleteness,
+    pub candidates: Vec<Candidate>,
+    pub diagnostics: Vec<Diagnostic>,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct ExplainOutput {
+    pub schema_version: u32,
+    pub selector: String,
+    pub analysis: CheckAnalysis,
+    pub project_root: String,
+    pub project_completeness: ProjectCompleteness,
+    pub result: ExplainResult,
+    pub diagnostics: Vec<Diagnostic>,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case", tag = "status")]
+pub enum ExplainResult {
+    Found { candidate: Box<Candidate> },
+    Ambiguous { candidates: Vec<CandidateSummary> },
+    NotFound,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct CandidateSummary {
+    pub candidate_id: String,
+    pub rule_id: FindingRule,
+    pub status: CandidateStatus,
+    pub confidence: Option<FindingConfidence>,
+    pub qualified_name: String,
+    pub file: String,
+    pub line: u32,
+    pub column: u32,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]

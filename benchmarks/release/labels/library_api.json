@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "case_id": "library_api",
+  "definitions": [
+    {"path": "src/pkg/api.py", "line": 1, "kind": "function", "qualified_name": "pkg.api::public_api", "label": "live", "reason": "exported public library API"},
+    {"path": "src/pkg/api.py", "line": 5, "kind": "function", "qualified_name": "pkg.api::_helper", "label": "live", "reason": "private helper reached from exported API"},
+    {"path": "src/pkg/api.py", "line": 9, "kind": "function", "qualified_name": "pkg.api::_dead_internal", "label": "dead", "expected_rule": "CULL001", "reason": "private library helper not exported or reached"},
+    {"path": "src/pkg/api.py", "line": 13, "kind": "class", "qualified_name": "pkg.api::PublicClass", "label": "live", "reason": "exported public library class"},
+    {"path": "src/pkg/api.py", "line": 18, "kind": "class", "qualified_name": "pkg.api::_DeadInternal", "label": "dead", "expected_rule": "CULL002", "reason": "private library class not exported or reached"}
+  ]
+}

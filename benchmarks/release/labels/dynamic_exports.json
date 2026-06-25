@@ -1,0 +1,8 @@
+{
+  "case_id": "dynamic_exports",
+  "definitions": [
+    {"path": "src/pkg/api.py", "line": 1, "kind": "function", "qualified_name": "pkg.api::stable_public", "label": "live", "reason": "statically exported through package __all__"},
+    {"path": "src/pkg/api.py", "line": 5, "kind": "function", "qualified_name": "pkg.api::dynamic_public", "label": "unknown", "max_confidence": "review", "reason": "dynamic __all__ update prevents a definite dead export conclusion"},
+    {"path": "src/pkg/api.py", "line": 9, "kind": "function", "qualified_name": "pkg.api::_private_dead", "label": "dead", "expected_rule": "CULL001", "reason": "private library helper not exported or reached"}
+  ]
+}

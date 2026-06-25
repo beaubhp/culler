@@ -1,0 +1,17 @@
+{
+  "repository_id": "pyupgrade",
+  "url": "https://github.com/asottile/pyupgrade",
+  "commit": "d9946e8ab925973cd9e338d847cf0ff2a3e227ec",
+  "mode": "application",
+  "review_date": "2026-06-25",
+  "review_scope": "Reviewed high-confidence Cull findings and top-level function/class baseline findings; not a full recall ground truth.",
+  "cull_high_confidence": {
+    "reviewed": 0,
+    "false_positive": 0
+  },
+  "baseline_findings_reviewed": {
+    "vulture": 2,
+    "deadcode": 48
+  },
+  "adjudication": "No high-confidence Cull findings were emitted at this checkpoint. This pinned application repository is a holdout trust check."
+}

@@ -1,19 +1,19 @@
 use std::{fs, path::PathBuf};
 
 use cull_core::{
-    CheckOutput, DebugBindingModule, DebugBindingsOutput, DebugDefinition, DebugDefinitionsOutput,
-    DebugModule, DebugReferencesOutput, Diagnostic, ProjectMode, PythonVersion, SemanticGraph,
-    SemanticGraphBuilder,
+    CheckOutput, DebugBindingModule, DebugBindingsOutput, DebugCandidatesOutput, DebugDefinition,
+    DebugDefinitionsOutput, DebugModule, DebugReferencesOutput, Diagnostic, ProjectCompleteness,
+    ProjectMode, PythonVersion, SemanticGraph, SemanticGraphBuilder, SkippedFile,
 };
 use ruff_python_ast::ModModule;
 
 use crate::{
-    check::analyze_part2,
+    check::{analyze_project, candidates_from_check},
     decode_python_source,
+    definition_effects::finalize_definition_effects,
     discovery::{discover_project, DiscoveredModule, DiscoveredProject, DiscoveryOptions},
     flow_analysis::analyze_module_flow,
     frontend::{ParseInput, PythonFrontend},
-    part1d_evidence::finalize_part1d_facts,
     ruff_frontend::{parse_ruff_module, RuffFrontend},
     semantic_inventory::collect_module_semantics,
 };
@@ -45,6 +45,16 @@ pub struct CheckOptions {
     pub source_roots: Vec<PathBuf>,
     pub target_python: Option<PythonVersion>,
     pub mode: Option<ProjectMode>,
+    pub allow_partial: bool,
+}
+
+#[derive(Clone, Debug)]
+pub struct DebugCandidatesOptions {
+    pub project_root: PathBuf,
+    pub source_roots: Vec<PathBuf>,
+    pub target_python: Option<PythonVersion>,
+    pub mode: Option<ProjectMode>,
+    pub allow_partial: bool,
 }
 
 pub fn analyze_debug_definitions(
@@ -211,6 +221,7 @@ pub(crate) struct SemanticProjectData {
     pub(crate) parsed_modules: Vec<ParsedProjectModule>,
     pub(crate) graph: SemanticGraph,
     pub(crate) diagnostics: Vec<Diagnostic>,
+    pub(crate) project_completeness: ProjectCompleteness,
 }
 
 pub(crate) struct ParsedProjectModule {
@@ -221,12 +232,36 @@ pub(crate) struct ParsedProjectModule {
 
 pub fn analyze_check(options: CheckOptions) -> Result<CheckOutput, Diagnostic> {
     let mode_override = options.mode;
+    let allow_partial_override = options.allow_partial;
     let data = analyze_semantic_project(
         options.project_root,
         options.source_roots,
         options.target_python,
     )?;
-    Ok(analyze_part2(data, mode_override))
+    Ok(analyze_project(data, mode_override, allow_partial_override))
+}
+
+pub fn analyze_debug_candidates(
+    options: DebugCandidatesOptions,
+) -> Result<DebugCandidatesOutput, Diagnostic> {
+    let mode_override = options.mode;
+    let allow_partial_override = options.allow_partial;
+    let data = analyze_semantic_project(
+        options.project_root,
+        options.source_roots,
+        options.target_python,
+    )?;
+    let output = analyze_project(data, mode_override, allow_partial_override);
+    let candidates = candidates_from_check(&output);
+    Ok(DebugCandidatesOutput {
+        schema_version: output.schema_version,
+        analysis: output.analysis.clone(),
+        project_root: output.project_root,
+        source_roots: output.source_roots,
+        project_completeness: output.project_completeness,
+        candidates,
+        diagnostics: output.diagnostics,
+    })
 }
 
 fn analyze_semantic_project(
@@ -244,11 +279,17 @@ fn analyze_semantic_project(
     let mut diagnostics = project.diagnostics.clone();
     let mut builder = SemanticGraphBuilder::new();
     let mut parsed_modules = Vec::new();
+    let mut skipped_files = Vec::new();
 
     for module in &project.modules {
         let bytes = match fs::read(&module.path) {
             Ok(bytes) => bytes,
             Err(error) => {
+                skipped_files.push(SkippedFile {
+                    path: module.display_path.clone(),
+                    reason: "failed to read source".to_owned(),
+                    diagnostic_code: "CULL_P0100".to_owned(),
+                });
                 diagnostics.push(
                     Diagnostic::error("CULL_P0100", format!("failed to read source: {error}"))
                         .with_path(module.display_path.clone()),
@@ -260,6 +301,11 @@ fn analyze_semantic_project(
         let source = match decode_python_source(&bytes) {
             Ok(source) => source,
             Err(error) => {
+                skipped_files.push(SkippedFile {
+                    path: module.display_path.clone(),
+                    reason: "failed to decode source".to_owned(),
+                    diagnostic_code: "CULL_P0101".to_owned(),
+                });
                 diagnostics.push(
                     Diagnostic::error("CULL_P0101", error.to_string())
                         .with_path(module.display_path.clone()),
@@ -294,11 +340,18 @@ fn analyze_semantic_project(
                     syntax: parsed,
                 });
             }
-            Err(mut parse_diagnostics) => diagnostics.append(&mut parse_diagnostics),
+            Err(mut parse_diagnostics) => {
+                skipped_files.push(SkippedFile {
+                    path: module.display_path.clone(),
+                    reason: "failed to parse source".to_owned(),
+                    diagnostic_code: "CULL_P0201".to_owned(),
+                });
+                diagnostics.append(&mut parse_diagnostics);
+            }
         }
     }
 
-    finalize_part1d_facts(&mut builder, &mut diagnostics);
+    finalize_definition_effects(&mut builder, &mut diagnostics);
 
     diagnostics.sort_by(|left, right| {
         left.path
@@ -314,11 +367,17 @@ fn analyze_semantic_project(
     });
 
     let graph = builder.finish();
+    let project_completeness = if skipped_files.is_empty() {
+        ProjectCompleteness::complete()
+    } else {
+        ProjectCompleteness::partial(skipped_files)
+    };
     Ok(SemanticProjectData {
         project,
         parsed_modules,
         graph,
         diagnostics,
+        project_completeness,
     })
 }
 

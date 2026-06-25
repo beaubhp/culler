@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "description": "Cull release benchmark suite: truth-labeled constructed cases plus pinned real-repository trust checks.",
+  "thresholds": {
+    "high_confidence_false_positive_budget": 0,
+    "min_labeled_dead": 40,
+    "min_cull_reported_true_positives": 25,
+    "min_cull_high_true_positives": 10,
+    "min_cull_high_precision": 0.95,
+    "min_cull_reported_recall": 0.9,
+    "min_holdout_labeled_dead": 20,
+    "min_holdout_cull_high_true_positives": 20,
+    "min_holdout_cull_reported_recall": 0.9,
+    "max_cull_case_seconds": 1.0,
+    "max_cull_case_rss_mb": 512,
+    "max_cull_full_corpus_seconds": 30.0,
+    "required_modes": ["auto", "application", "library"]
+  },
+  "tools": {
+    "vulture": {
+      "version": "2.16",
+      "command": "uvx vulture==2.16 <source-roots>",
+      "scope": "top-level function/class findings only; unmatched nested or method findings are filtered from scoring"
+    },
+    "deadcode": {
+      "version": "2.4.1",
+      "command": "uvx --python 3.11 deadcode==2.4.1 <source-roots>",
+      "scope": "DC02/DC03 function/class findings only; unmatched nested or method findings are filtered from scoring"
+    }
+  },
+  "cases": [
+    {
+      "id": "semantic_identity",
+      "kind": "semantic",
+      "path": "fixtures/semantic_identity",
+      "mode": "application",
+      "source_roots": ["src"],
+      "labels": "labels/semantic_identity.json",
+      "run_baselines": true,
+      "release_gate": true,
+      "holdout": false,
+      "covers": ["scope identity", "same-name definitions", "imports", "application roots"]
+    },
+    {
+      "id": "library_api",
+      "kind": "semantic",
+      "path": "fixtures/library_api",
+      "mode": "library",
+      "source_roots": ["src"],
+      "labels": "labels/library_api.json",
+      "run_baselines": true,
+      "release_gate": true,
+      "holdout": false,
+      "covers": ["library mode", "static __all__", "re-exports", "private API findings"]
+    },
+    {
+      "id": "roots_dead_clusters",
+      "kind": "semantic",
+      "path": "fixtures/roots_dead_clusters",
+      "mode": "application",
+      "source_roots": ["src"],
+      "labels": "labels/roots_dead_clusters.json",
+      "run_baselines": true,
+      "release_gate": true,
+      "holdout": false,
+      "covers": ["configured roots", "dead clusters", "root-unreachable findings"]
+    },
+    {
+      "id": "uncertainty",
+      "kind": "semantic",
+      "path": "fixtures/uncertainty",
+      "mode": "application",
+      "source_roots": ["src"],
+      "labels": "labels/uncertainty.json",
+      "run_baselines": true,
+      "release_gate": true,
+      "holdout": false,
+      "covers": ["dynamic-access uncertainty", "getattr", "setattr", "exec"]
+    },
+    {
+      "id": "annotations_tests",
+      "kind": "semantic",
+      "path": "fixtures/annotations_tests",
+      "mode": "application",
+      "source_roots": ["src"],
+      "labels": "labels/annotations_tests.json",
+      "run_baselines": true,
+      "release_gate": true,
+      "holdout": false,
+      "covers": ["type-only references", "lazy annotations", "test-only references"]
+    },
+    {
+      "id": "partial_project",
+      "kind": "semantic",
+      "path": "fixtures/partial_project",
+      "mode": "application",
+      "source_roots": ["src"],
+      "labels": "labels/partial_project.json",
+      "run_baselines": false,
+      "release_gate": true,
+      "holdout": false,
+      "allow_partial": true,
+      "covers": ["partial analysis", "confidence ceilings", "parse failures"]
+    },
+    {
+      "id": "auto_mode",
+      "kind": "constructed",
+      "path": "fixtures/auto_mode",
+      "mode": "auto",
+      "source_roots": ["src"],
+      "labels": "labels/auto_mode.json",
+      "run_baselines": true,
+      "release_gate": true,
+      "holdout": false,
+      "covers": ["auto mode", "script roots", "public auto-mode review policy"]
+    },
+    {
+      "id": "advanced_bindings",
+      "kind": "semantic",
+      "path": "fixtures/advanced_bindings",
+      "mode": "application",
+      "source_roots": ["src"],
+      "labels": "labels/advanced_bindings.json",
+      "run_baselines": true,
+      "release_gate": true,
+      "holdout": false,
+      "covers": ["redefinitions", "branch-ambiguous bindings", "definition-time effects"]
+    },
+    {
+      "id": "dynamic_exports",
+      "kind": "semantic",
+      "path": "fixtures/dynamic_exports",
+      "mode": "library",
+      "source_roots": ["src"],
+      "labels": "labels/dynamic_exports.json",
+      "run_baselines": true,
+      "release_gate": true,
+      "holdout": false,
+      "covers": ["dynamic __all__", "library public API", "private API findings"]
+    },
+    {
+      "id": "constructed_cli",
+      "kind": "constructed",
+      "path": "fixtures/constructed_cli",
+      "mode": "application",
+      "source_roots": ["src"],
+      "labels": "labels/constructed_cli.json",
+      "run_baselines": true,
+      "release_gate": true,
+      "holdout": false,
+      "covers": ["application roots", "dead clusters", "class findings", "function findings"]
+    },
+    {
+      "id": "constructed_library",
+      "kind": "constructed",
+      "path": "fixtures/constructed_library",
+      "mode": "library",
+      "source_roots": ["src"],
+      "labels": "labels/constructed_library.json",
+      "run_baselines": true,
+      "release_gate": true,
+      "holdout": false,
+      "covers": ["library mode", "external surface isolation", "private API findings"]
+    },
+    {
+      "id": "constructed_scale",
+      "kind": "constructed",
+      "path": "fixtures/constructed_scale",
+      "mode": "application",
+      "source_roots": ["src"],
+      "labels": "labels/constructed_scale.json",
+      "run_baselines": true,
+      "release_gate": true,
+      "holdout": true,
+      "covers": ["holdout", "scale", "minimum reporting floor"]
+    }
+  ],
+  "real_repositories": [
+    {
+      "id": "django-upgrade",
+      "kind": "real",
+      "url": "https://github.com/adamchainz/django-upgrade",
+      "commit": "a0efd953faf6644b5b6d37716b5b183825310bc0",
+      "mode": "application",
+      "source_roots": ["src"],
+      "run_baselines": true,
+      "adjudication": "real_adjudications/django-upgrade.json",
+      "review_scope": "tool findings plus high-confidence Cull findings; not full recall ground truth",
+      "holdout": false
+    },
+    {
+      "id": "pyupgrade",
+      "kind": "real",
+      "url": "https://github.com/asottile/pyupgrade",
+      "commit": "d9946e8ab925973cd9e338d847cf0ff2a3e227ec",
+      "mode": "application",
+      "source_roots": ["."],
+      "run_baselines": true,
+      "adjudication": "real_adjudications/pyupgrade.json",
+      "review_scope": "tool findings plus high-confidence Cull findings; not full recall ground truth",
+      "holdout": true
+    },
+    {
+      "id": "itsdangerous",
+      "kind": "real",
+      "url": "https://github.com/pallets/itsdangerous",
+      "commit": "672971d66a2ef9f85151e53283113f33d642dabd",
+      "mode": "library",
+      "source_roots": ["src"],
+      "run_baselines": true,
+      "adjudication": "real_adjudications/itsdangerous.json",
+      "review_scope": "tool findings plus high-confidence Cull findings; not full recall ground truth",
+      "holdout": false
+    },
+    {
+      "id": "h11",
+      "kind": "real",
+      "url": "https://github.com/python-hyper/h11",
+      "commit": "62c5068c971579d61fa1b55373390e12f25fd856",
+      "mode": "library",
+      "source_roots": ["."],
+      "run_baselines": true,
+      "adjudication": "real_adjudications/h11.json",
+      "review_scope": "tool findings plus high-confidence Cull findings; not full recall ground truth",
+      "holdout": true
+    }
+  ]
+}

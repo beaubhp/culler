@@ -1,0 +1,18 @@
+{
+  "case_id": "advanced_bindings",
+  "definitions": [
+    {"path": "src/pkg/app.py", "line": 4, "kind": "function", "qualified_name": "pkg.app::main", "label": "live", "reason": "script root"},
+    {"path": "src/pkg/bindings.py", "line": 4, "kind": "function", "qualified_name": "pkg.bindings::replaced", "label": "unknown", "reason": "superseded binding in same-module redefinition"},
+    {"path": "src/pkg/bindings.py", "line": 8, "kind": "function", "qualified_name": "pkg.bindings::replaced", "label": "live", "reason": "current binding called by chosen"},
+    {"path": "src/pkg/bindings.py", "line": 12, "kind": "function", "qualified_name": "pkg.bindings::chosen", "label": "live", "reason": "called by root"},
+    {"path": "src/pkg/bindings.py", "line": 18, "kind": "function", "qualified_name": "pkg.bindings::branch_target", "label": "live", "reason": "possible branch binding called by branch_user"},
+    {"path": "src/pkg/bindings.py", "line": 23, "kind": "function", "qualified_name": "pkg.bindings::branch_target", "label": "live", "reason": "possible branch binding called by branch_user"},
+    {"path": "src/pkg/bindings.py", "line": 27, "kind": "function", "qualified_name": "pkg.bindings::branch_user", "label": "live", "reason": "called by root"},
+    {"path": "src/pkg/bindings.py", "line": 31, "kind": "function", "qualified_name": "pkg.bindings::marker", "label": "live", "reason": "used as a decorator at definition time"},
+    {"path": "src/pkg/bindings.py", "line": 36, "kind": "function", "qualified_name": "pkg.bindings::decorated", "label": "live", "reason": "called by root after decorator application"},
+    {"path": "src/pkg/bindings.py", "line": 40, "kind": "class", "qualified_name": "pkg.bindings::Base", "label": "live", "reason": "used as a base class at definition time"},
+    {"path": "src/pkg/bindings.py", "line": 44, "kind": "class", "qualified_name": "pkg.bindings::Child", "label": "live", "reason": "constructed by child_value"},
+    {"path": "src/pkg/bindings.py", "line": 48, "kind": "function", "qualified_name": "pkg.bindings::child_value", "label": "live", "reason": "called by root"},
+    {"path": "src/pkg/bindings.py", "line": 52, "kind": "function", "qualified_name": "pkg.bindings::unused_after_branch", "label": "dead", "expected_rule": "CULL001", "reason": "unreferenced top-level function after branch and definition-time effects"}
+  ]
+}

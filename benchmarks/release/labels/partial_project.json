@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "case_id": "partial_project",
+  "definitions": [
+    {"path": "src/pkg/good.py", "line": 1, "kind": "function", "qualified_name": "pkg.good::partial_dead", "label": "dead", "expected_rule": "CULL001", "max_confidence": "review", "reason": "dead but confidence must be capped by partial analysis"}
+  ]
+}

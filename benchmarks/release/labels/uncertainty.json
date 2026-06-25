@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "case_id": "uncertainty",
+  "definitions": [
+    {"path": "src/pkg/api.py", "line": 1, "kind": "function", "qualified_name": "pkg.api::handler", "label": "unknown", "reason": "dynamic getattr may reference this module namespace"},
+    {"path": "src/pkg/api.py", "line": 5, "kind": "function", "qualified_name": "pkg.api::maybe_dynamic", "label": "unknown", "reason": "reflective namespace mutation affects this module namespace"},
+    {"path": "src/pkg/safe.py", "line": 1, "kind": "function", "qualified_name": "pkg.safe::safe_dead", "label": "dead", "expected_rule": "CULL001", "reason": "unreferenced and outside the dynamic namespace region"}
+  ]
+}

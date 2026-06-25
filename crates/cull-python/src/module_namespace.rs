@@ -326,12 +326,3 @@ fn package_context_name(module: &DiscoveredModule) -> impl Iterator<Item = Strin
 pub(crate) fn is_package_module(module: &DiscoveredModule) -> bool {
     module.path.file_name().and_then(|name| name.to_str()) == Some("__init__.py")
 }
-
-pub(crate) fn has_module_getattr(source_module: &ruff_python_ast::ModModule) -> bool {
-    source_module.body.iter().any(|statement| {
-        matches!(
-            statement,
-            ruff_python_ast::Stmt::FunctionDef(function) if function.name.id.as_str() == "__getattr__"
-        )
-    })
-}

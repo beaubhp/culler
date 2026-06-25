@@ -1,0 +1,17 @@
+{
+  "repository_id": "h11",
+  "url": "https://github.com/python-hyper/h11",
+  "commit": "62c5068c971579d61fa1b55373390e12f25fd856",
+  "mode": "library",
+  "review_date": "2026-06-25",
+  "review_scope": "Reviewed high-confidence Cull findings and top-level function/class baseline findings; not a full recall ground truth.",
+  "cull_high_confidence": {
+    "reviewed": 0,
+    "false_positive": 0
+  },
+  "baseline_findings_reviewed": {
+    "vulture": 1,
+    "deadcode": 1
+  },
+  "adjudication": "No high-confidence Cull findings were emitted at this checkpoint. This pinned library repository is a holdout trust check."
+}

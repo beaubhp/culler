@@ -1,0 +1,7 @@
+[project.scripts]
+sample-tool = "pkg.cli:main"
+
+[tool.cull]
+src = "src"
+mode = "application"
+root_coverage = "complete"

@@ -18,6 +18,7 @@ pub struct ProjectConfig {
     pub gui_scripts: Vec<ProjectScript>,
     pub dynamic_scripts: bool,
     pub dynamic_gui_scripts: bool,
+    pub allow_partial: bool,
 }
 
 impl ProjectConfig {
@@ -35,6 +36,7 @@ impl ProjectConfig {
             gui_scripts: Vec::new(),
             dynamic_scripts: false,
             dynamic_gui_scripts: false,
+            allow_partial: false,
         }
     }
 }
@@ -181,6 +183,7 @@ pub fn load_project_config(project_root: &Path) -> Result<ProjectConfig, ConfigE
         gui_scripts,
         dynamic_scripts,
         dynamic_gui_scripts,
+        allow_partial: cull.allow_partial.unwrap_or(false),
     })
 }
 
@@ -214,6 +217,7 @@ struct ToolCull {
     mode: Option<String>,
     roots: Option<Vec<String>>,
     root_coverage: Option<String>,
+    allow_partial: Option<bool>,
 }
 
 #[derive(Debug, Deserialize)]

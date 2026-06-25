@@ -1,0 +1,9 @@
+[project]
+name = "cull-benchmark-auto-mode"
+version = "1.0.0"
+
+[project.scripts]
+auto-case = "pkg.cli:main"
+
+[tool.cull]
+root_coverage = "complete"
