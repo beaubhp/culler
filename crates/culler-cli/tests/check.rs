@@ -11,6 +11,18 @@ fn culler() -> Command {
 }
 
 #[test]
+fn version_flag_reports_package_version() {
+    let output = culler().arg("--version").output().unwrap();
+
+    assert!(output.status.success());
+    assert_eq!(
+        String::from_utf8_lossy(&output.stdout).trim(),
+        concat!("culler ", env!("CARGO_PKG_VERSION"))
+    );
+    assert!(String::from_utf8_lossy(&output.stderr).is_empty());
+}
+
+#[test]
 fn default_text_hides_review_findings_and_exits_zero() {
     let temp = tempfile::tempdir().unwrap();
     write_file(temp.path(), "src/pkg/__init__.py", "");

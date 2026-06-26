@@ -1,0 +1,51 @@
+[build-system]
+requires = ["maturin>=1.14,<2"]
+build-backend = "maturin"
+
+[project]
+name = "culler"
+dynamic = ["version"]
+description = "A precise Python dead-code analyzer."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Beau Hayes-Pollard" },
+]
+keywords = [
+    "dead-code",
+    "static-analysis",
+    "python",
+    "cli",
+    "rust",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Utilities",
+]
+
+[project.urls]
+Homepage = "https://github.com/beaubhp/culler"
+Repository = "https://github.com/beaubhp/culler"
+Issues = "https://github.com/beaubhp/culler/issues"
+Benchmark = "https://github.com/beaubhp/culler/tree/main/benchmark"
+
+[tool.maturin]
+manifest-path = "crates/culler-cli/Cargo.toml"
+bindings = "bin"
+compatibility = "pypi"
+strip = true

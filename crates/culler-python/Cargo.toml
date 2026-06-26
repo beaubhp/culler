@@ -9,7 +9,7 @@ description.workspace = true
 
 [dependencies]
 blake3.workspace = true
-culler-core = { version = "0.1.0", path = "../culler-core" }
+culler-core.workspace = true
 data-encoding.workspace = true
 globset.workspace = true
 ruff_python_ast.workspace = true

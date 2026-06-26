@@ -10,8 +10,7 @@ publish = false
 cargo-fuzz = true
 
 [dependencies]
-culler-core = { version = "0.1.0", path = "../crates/culler-core" }
-culler-python = { version = "0.1.0", path = "../crates/culler-python" }
+culler-python = { path = "../crates/culler-python" }
 libfuzzer-sys = "0.4"
 
 [[bin]]

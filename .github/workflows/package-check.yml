@@ -1,0 +1,60 @@
+name: Package Check
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-install:
+    name: Build and Install
+    runs-on: ubuntu-latest
+    steps:
+      # actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
+      # actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.12"
+      - name: Set up Rust
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+      # Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32
+      - name: Check Cargo package manifests
+        run: |
+          cargo package -p culler-core --list >/dev/null
+          cargo package -p culler-python --list >/dev/null
+          cargo package -p culler-cli --list >/dev/null
+      - name: Check fuzz manifest
+        run: cargo check --manifest-path fuzz/Cargo.toml
+      - name: Install packaging tools
+        run: python -m pip install --upgrade "maturin>=1.14,<2" "twine>=6,<7"
+      - name: Build wheel and source distribution
+        run: maturin build --release --out dist --sdist
+      - name: Check distributions
+        run: python -m twine check dist/*
+      - name: Install wheel in a clean virtual environment
+        run: |
+          python -m venv "$RUNNER_TEMP/culler-venv"
+          "$RUNNER_TEMP/culler-venv/bin/python" -m pip install dist/*.whl
+          "$RUNNER_TEMP/culler-venv/bin/culler" --help
+          "$RUNNER_TEMP/culler-venv/bin/culler" --version
+      - name: Run installed CLI on a tiny project
+        run: |
+          project="$RUNNER_TEMP/culler-smoke"
+          mkdir -p "$project/src/pkg"
+          printf 'def live():\n    return 1\n' > "$project/src/pkg/__init__.py"
+          printf '[tool.culler]\nsrc = "src"\n' > "$project/pyproject.toml"
+          "$RUNNER_TEMP/culler-venv/bin/culler" check "$project"

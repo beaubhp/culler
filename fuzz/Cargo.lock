@@ -164,7 +164,6 @@ dependencies = [
 name = "culler-fuzz"
 version = "0.1.0"
 dependencies = [
- "culler-core",
  "culler-python",
  "libfuzzer-sys",
 ]

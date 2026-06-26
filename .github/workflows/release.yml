@@ -1,0 +1,225 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+    steps:
+      # googleapis/release-please-action@v5
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7
+        id: release
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+          skip-labeling: true
+
+  linux-wheels:
+    name: Linux wheel (${{ matrix.target }})
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - x86_64
+          - aarch64
+    steps:
+      # actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
+      - name: Set up QEMU
+        if: matrix.target == 'aarch64'
+        # docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130
+      # PyO3/maturin-action@v1
+      - uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b
+        with:
+          command: build
+          maturin-version: v1.14.1
+          target: ${{ matrix.target }}
+          manylinux: "2014"
+          args: --release --compatibility pypi --out dist
+      - name: Smoke test native wheel
+        if: matrix.target == 'x86_64'
+        run: |
+          python3 -m venv "$RUNNER_TEMP/culler-wheel-smoke"
+          "$RUNNER_TEMP/culler-wheel-smoke/bin/python" -m pip install dist/*.whl
+          "$RUNNER_TEMP/culler-wheel-smoke/bin/culler" --help
+          "$RUNNER_TEMP/culler-wheel-smoke/bin/culler" --version
+      # actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: dist-linux-${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  macos-wheels:
+    name: macOS wheel (${{ matrix.target }})
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - x86_64
+          - aarch64
+    steps:
+      # actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
+      # PyO3/maturin-action@v1
+      - uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b
+        with:
+          command: build
+          maturin-version: v1.14.1
+          target: ${{ matrix.target }}
+          args: --release --compatibility pypi --out dist
+      - name: Smoke test native wheel
+        shell: bash
+        run: |
+          case "$(uname -m):${{ matrix.target }}" in
+            x86_64:x86_64|arm64:aarch64)
+              python3 -m venv "$RUNNER_TEMP/culler-wheel-smoke"
+              "$RUNNER_TEMP/culler-wheel-smoke/bin/python" -m pip install dist/*.whl
+              "$RUNNER_TEMP/culler-wheel-smoke/bin/culler" --help
+              "$RUNNER_TEMP/culler-wheel-smoke/bin/culler" --version
+              ;;
+            *)
+              echo "Skipping non-native wheel smoke test for $(uname -m) runner and ${{ matrix.target }} target"
+              ;;
+          esac
+      # actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: dist-macos-${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  windows-wheel:
+    name: Windows wheel (x64)
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: windows-latest
+    steps:
+      # actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
+      # PyO3/maturin-action@v1
+      - uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b
+        with:
+          command: build
+          maturin-version: v1.14.1
+          target: x64
+          args: --release --compatibility pypi --out dist
+      - name: Smoke test wheel
+        shell: pwsh
+        run: |
+          python -m venv "$env:RUNNER_TEMP\culler-wheel-smoke"
+          $wheel = Get-ChildItem dist -Filter *.whl | Select-Object -First 1
+          & "$env:RUNNER_TEMP\culler-wheel-smoke\Scripts\python.exe" -m pip install $wheel.FullName
+          & "$env:RUNNER_TEMP\culler-wheel-smoke\Scripts\culler.exe" --help
+          & "$env:RUNNER_TEMP\culler-wheel-smoke\Scripts\culler.exe" --version
+      # actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: dist-windows-x64
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  sdist:
+    name: Source distribution
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      # actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
+      # PyO3/maturin-action@v1
+      - uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b
+        with:
+          command: sdist
+          maturin-version: v1.14.1
+          args: --out dist
+      # actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: dist-sdist
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  check-distributions:
+    name: Check distributions
+    needs:
+      - release-please
+      - linux-wheels
+      - macos-wheels
+      - windows-wheel
+      - sdist
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      # actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.12"
+      # actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          path: dist
+          pattern: dist-*
+          merge-multiple: true
+      - name: Check distributions
+        run: |
+          python -m pip install --upgrade "twine>=6,<7"
+          python -m twine check dist/*
+
+  publish-pypi:
+    name: Publish to PyPI
+    needs:
+      - release-please
+      - check-distributions
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/culler
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      # actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          path: dist
+          pattern: dist-*
+          merge-multiple: true
+      # pypa/gh-action-pypi-publish@release/v1
+      - uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b
