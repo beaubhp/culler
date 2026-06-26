@@ -31,7 +31,7 @@ jobs:
           skip-labeling: true
 
   linux-wheels:
-    name: Linux wheel (${{ matrix.target }})
+    name: Linux wheels
     needs: release-please
     if: needs.release-please.outputs.release_created == 'true'
     runs-on: ubuntu-latest
@@ -74,7 +74,7 @@ jobs:
           retention-days: 7
 
   macos-wheels:
-    name: macOS wheel (${{ matrix.target }})
+    name: macOS wheels
     needs: release-please
     if: needs.release-please.outputs.release_created == 'true'
     runs-on: macos-latest
