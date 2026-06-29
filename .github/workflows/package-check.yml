@@ -39,10 +39,23 @@ jobs:
           cargo package -p culler-cli --list >/dev/null
       - name: Check fuzz manifest
         run: cargo check --manifest-path fuzz/Cargo.toml
-      - name: Install packaging tools
-        run: python -m pip install --upgrade "maturin>=1.14,<2" "twine>=6,<7"
-      - name: Build wheel and source distribution
-        run: maturin build --release --out dist --sdist
+      - name: Install distribution checker
+        run: python -m pip install --upgrade "twine>=6,<7"
+      - name: Build Linux wheel
+        # PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b
+        with:
+          command: build
+          maturin-version: v1.14.1
+          manylinux: "2014"
+          args: --release --compatibility pypi --out dist
+      - name: Build source distribution
+        # PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b
+        with:
+          command: sdist
+          maturin-version: v1.14.1
+          args: --out dist
       - name: Check distributions
         run: python -m twine check dist/*
       - name: Install wheel in a clean virtual environment
