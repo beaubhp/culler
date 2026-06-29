@@ -23,5 +23,5 @@ Use `feat` for user-visible behavior, `fix` for correctness, `perf` for speed
 or memory improvements, `docs` for documentation, `test` for tests, `refactor`
 for internal cleanup, `build` for packaging, and `ci` for automation.
 
-Avoid vague messages such as `update`, `cleanup`, `misc`, or `final changes`.
+Avoid vague messages like `update`, `cleanup`, `misc`, or `final changes`.
 If a change has multiple unrelated purposes, split it into separate commits.

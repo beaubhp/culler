@@ -1,8 +1,7 @@
 # Contributing
 
-Culler is intentionally small and precise. Changes should keep the analyzer
-fast, conservative where Python is dynamic, and explicit where evidence is
-strong.
+Culler is small and precise. Changes should keep it fast, conservative where
+Python is dynamic, and explicit where evidence is strong.
 
 ## Development Checks
 
