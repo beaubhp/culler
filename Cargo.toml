@@ -7,7 +7,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.1.0" # x-release-please-version
+version = "0.1.1" # x-release-please-version
 edition = "2021"
 rust-version = "1.82"
 license = "MIT"
@@ -17,8 +17,8 @@ description = "A fast, high-confidence Python dead-code analyzer."
 [workspace.dependencies]
 blake3 = "1.8.2"
 clap = { version = "4.5.53", features = ["derive"] }
-culler-core = { version = "0.1.0", path = "crates/culler-core" } # x-release-please-version
-culler-python = { version = "0.1.0", path = "crates/culler-python" } # x-release-please-version
+culler-core = { version = "0.1.1", path = "crates/culler-core" } # x-release-please-version
+culler-python = { version = "0.1.1", path = "crates/culler-python" } # x-release-please-version
 data-encoding = "2.9.0"
 globset = "0.4.18"
 serde = { version = "1.0.228", features = ["derive"] }
