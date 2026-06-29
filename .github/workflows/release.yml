@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      publish_current_version:
+        description: "Publish the current Cargo workspace version to PyPI."
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -15,6 +22,7 @@ concurrency:
 jobs:
   release-please:
     name: Release Please
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -33,7 +41,14 @@ jobs:
   linux-wheels:
     name: Linux wheels
     needs: release-please
-    if: needs.release-please.outputs.release_created == 'true'
+    if: >-
+      ${{
+        always() &&
+        (
+          needs.release-please.outputs.release_created == 'true' ||
+          (github.event_name == 'workflow_dispatch' && inputs.publish_current_version)
+        )
+      }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -76,7 +91,14 @@ jobs:
   macos-wheels:
     name: macOS wheels
     needs: release-please
-    if: needs.release-please.outputs.release_created == 'true'
+    if: >-
+      ${{
+        always() &&
+        (
+          needs.release-please.outputs.release_created == 'true' ||
+          (github.event_name == 'workflow_dispatch' && inputs.publish_current_version)
+        )
+      }}
     runs-on: macos-latest
     strategy:
       fail-fast: false
@@ -121,7 +143,14 @@ jobs:
   windows-wheel:
     name: Windows wheel (x64)
     needs: release-please
-    if: needs.release-please.outputs.release_created == 'true'
+    if: >-
+      ${{
+        always() &&
+        (
+          needs.release-please.outputs.release_created == 'true' ||
+          (github.event_name == 'workflow_dispatch' && inputs.publish_current_version)
+        )
+      }}
     runs-on: windows-latest
     steps:
       # actions/checkout@v5
@@ -154,7 +183,14 @@ jobs:
   sdist:
     name: Source distribution
     needs: release-please
-    if: needs.release-please.outputs.release_created == 'true'
+    if: >-
+      ${{
+        always() &&
+        (
+          needs.release-please.outputs.release_created == 'true' ||
+          (github.event_name == 'workflow_dispatch' && inputs.publish_current_version)
+        )
+      }}
     runs-on: ubuntu-latest
     steps:
       # actions/checkout@v5
@@ -183,7 +219,18 @@ jobs:
       - macos-wheels
       - windows-wheel
       - sdist
-    if: needs.release-please.outputs.release_created == 'true'
+    if: >-
+      ${{
+        always() &&
+        needs.linux-wheels.result == 'success' &&
+        needs.macos-wheels.result == 'success' &&
+        needs.windows-wheel.result == 'success' &&
+        needs.sdist.result == 'success' &&
+        (
+          needs.release-please.outputs.release_created == 'true' ||
+          (github.event_name == 'workflow_dispatch' && inputs.publish_current_version)
+        )
+      }}
     runs-on: ubuntu-latest
     steps:
       # actions/setup-python@v6
@@ -206,7 +253,15 @@ jobs:
     needs:
       - release-please
       - check-distributions
-    if: needs.release-please.outputs.release_created == 'true'
+    if: >-
+      ${{
+        always() &&
+        needs.check-distributions.result == 'success' &&
+        (
+          needs.release-please.outputs.release_created == 'true' ||
+          (github.event_name == 'workflow_dispatch' && inputs.publish_current_version)
+        )
+      }}
     runs-on: ubuntu-latest
     environment:
       name: pypi
