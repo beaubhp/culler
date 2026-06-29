@@ -1,7 +1,7 @@
 # Culler
 
-[![PyPI](https://img.shields.io/pypi/v/culler.svg)](https://pypi.org/project/culler/)
-[![Python versions](https://img.shields.io/pypi/pyversions/culler.svg)](https://pypi.org/project/culler/)
+[![PyPI](https://img.shields.io/pypi/v/culler)](https://pypi.org/project/culler/)
+[![Python versions](https://img.shields.io/pypi/pyversions/culler)](https://pypi.org/project/culler/)
 [![CI](https://github.com/beaubhp/culler/actions/workflows/ci.yml/badge.svg)](https://github.com/beaubhp/culler/actions/workflows/ci.yml)
 [![Package Check](https://github.com/beaubhp/culler/actions/workflows/package-check.yml/badge.svg)](https://github.com/beaubhp/culler/actions/workflows/package-check.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/beaubhp/culler/blob/main/LICENSE)
