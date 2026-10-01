@@ -310,15 +310,6 @@ uvx maturin build --release --out dist --sdist
 uvx twine check dist/*
 ```
 
-## Status
-
-Culler is pre-1.0 software. Rule IDs are intended to be stable, but CLI,
-configuration, and JSON output details may still evolve before `1.0`.
-
-Releases use reviewed PRs and changelog updates. See
-[`CONTRIBUTING.md`](https://github.com/beaubhp/culler/blob/main/CONTRIBUTING.md)
-for commit and release guidance.
-
 ## License
 
 Culler is released under the MIT License. See
